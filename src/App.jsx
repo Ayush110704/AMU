@@ -3,6 +3,7 @@ import DualCarousels from './Components/DualCarousels'
 import Gallery from './Pages/Gallery'
 import Footer from './Components/Footer'
 import HowItWorks from './Pages/HowItWorks'
+import ComplaintForm from './Pages/ComplaintForm'
 
 function App() { 
   return (
@@ -10,6 +11,7 @@ function App() {
       <Navbar />
       <DualCarousels />
       <Gallery />
+      <ComplaintForm />
       <HowItWorks />
       <Footer />
     </div>

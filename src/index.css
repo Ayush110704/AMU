@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 :root {
   --primary: #006B3F;
   --primary-dark: #004D2D;
@@ -16,4 +24,62 @@
   --text: #292929;
   --text-secondary: #626B65;
   --border: #D1D5DB;
+
+  /* Semantic aliases keep new styles tied to the existing AMU palette. */
+  --color-brand: var(--primary);
+  --color-brand-strong: var(--primary-dark);
+  --color-brand-soft: var(--primary-light);
+  --color-accent: var(--secondary);
+  --color-accent-strong: var(--secondary-dark);
+  --color-accent-soft: var(--secondary-light);
+  --color-canvas: var(--surface);
+  --color-surface: var(--background);
+  --color-surface-muted: var(--surface-alt);
+  --color-content: var(--text);
+  --color-content-muted: var(--text-secondary);
+  --color-border: var(--border);
+
+  /* Shared sizing and interaction tokens for future section work. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 10px 28px rgba(25, 48, 35, 0.07);
+  --transition-ui: 180ms ease;
+  --focus-ring: #006B3F;
+  --font-family-base: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html {
+  font-family: var(--font-family-base);
+}
+
+body {
+  color: var(--color-content);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

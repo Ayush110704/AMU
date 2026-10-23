@@ -1,4 +1,5 @@
 import React from 'react';
+import './HowItWorks.css'
 
 const HowItWorks = () => {
   // Data for the steps to keep the JSX clean
@@ -38,9 +39,9 @@ const HowItWorks = () => {
     },
     {
       num: '3',
-      numColor: 'bg-[#2563EB]', // Blue
-      iconBg: 'bg-[#EFF6FF]', // Light Blue
-      iconColor: 'text-[#2563EB]',
+      numColor: 'bg-[#006B3F]',
+      iconBg: 'bg-[#E6F2EC]',
+      iconColor: 'text-[#006B3F]',
       title: 'Action',
       desc: 'It will be discussed\nand assigned',
       icon: (
@@ -67,23 +68,23 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="w-full bg-[#F5F5F0] py-12 px-4 relative overflow-hidden">
+    <section className="how-it-works relative w-full overflow-hidden bg-[#F5F5F0] px-4 py-14 sm:py-16 lg:py-20" aria-labelledby="how-it-works-heading">
       {/* Optional: Subtle background blobs to match the image's organic feel */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#E6F2EC] rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+      <div aria-hidden="true" className="absolute top-0 right-0 w-64 h-64 bg-[#E6F2EC] rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
       
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-4 relative z-10">
+      <div className="how-it-works__layout relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-9 lg:flex-row lg:gap-6">
         
         {/* Title Section (Left) */}
-        <div className="flex flex-col items-start lg:w-1/4 shrink-0 relative">
+        <div className="how-it-works__intro relative flex w-full shrink-0 flex-col items-start lg:w-[24%]">
           <span className="bg-[#E6F2EC] text-[#006B3F] text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-3">
             Simple Process
           </span>
           <div className="relative">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#292929]">
+            <h2 id="how-it-works-heading" className="text-3xl font-extrabold tracking-[-0.035em] text-[#292929] sm:text-4xl">
               How It Works
             </h2>
             {/* Playful sketch lines */}
-            <svg className="absolute -right-8 -top-2 w-8 h-8 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg aria-hidden="true" className="absolute -right-8 -top-2 w-8 h-8 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <line x1="4" y1="12" x2="8" y2="6"></line>
               <line x1="10" y1="16" x2="14" y2="8"></line>
               <line x1="16" y1="14" x2="20" y2="10"></line>
@@ -92,17 +93,17 @@ const HowItWorks = () => {
         </div>
 
         {/* Steps Timeline (Right) */}
-        <div className="w-full lg:w-3/4 flex flex-col md:flex-row items-start justify-between relative gap-8 md:gap-0">
+        <div className="how-it-works__steps relative flex w-full flex-col items-stretch justify-between gap-4 md:flex-row md:items-start md:gap-3 lg:w-[73%]" role="list" aria-label="Complaint resolution steps">
           
           {steps.map((step, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center relative w-full group">
+            <div key={step.num} className="how-it-works__step group relative flex w-full flex-1 flex-col items-center md:min-w-0" role="listitem">
               
               {/* Connecting Dotted Line (Hidden on mobile and for the last item) */}
               {index !== steps.length - 1 && (
-                <div className="hidden md:block absolute top-5 left-[50%] w-full h-[2px] border-t-2 border-dashed border-gray-300 z-0">
+                <div aria-hidden="true" className="how-it-works__connector absolute left-[50%] top-5 z-0 hidden h-[2px] w-full border-t-2 border-dashed border-[#CBD5CE] md:block">
                   {/* Small Arrow at the end of the line */}
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
-                     <svg viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 bg-[#F5F5F0]">
+                     <svg viewBox="0 0 24 24" fill="none" stroke="#AAB7AE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 bg-[#F5F5F0]">
                         <polyline points="9 18 15 12 9 6"></polyline>
                      </svg>
                   </div>
@@ -110,17 +111,17 @@ const HowItWorks = () => {
               )}
 
               {/* Step Content Wrapper */}
-              <div className="relative z-10 flex flex-col items-center text-center px-2">
+              <div className="how-it-works__content relative z-10 flex w-full flex-col items-center px-4 py-5 text-center sm:px-5 md:min-h-[182px] md:px-3 md:py-5">
                 
                 {/* Icons & Numbers Row */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="mb-4 flex items-center gap-3">
                   {/* Number Badge */}
-                  <div className={`w-8 h-8 rounded-full ${step.numColor} text-white font-bold text-sm flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`how-it-works__number flex h-8 w-8 items-center justify-center rounded-full ${step.numColor} text-sm font-bold ${step.num === '2' ? 'text-[#292929]' : 'text-white'} shadow-sm transition-transform duration-300 group-hover:scale-105`} aria-hidden="true">
                     {step.num}
                   </div>
                   
                   {/* Icon Circle */}
-                  <div className={`w-12 h-12 rounded-full ${step.iconBg} flex items-center justify-center border-4 border-white shadow-sm group-hover:-translate-y-1 transition-transform duration-300`}>
+                  <div className={`how-it-works__icon flex h-12 w-12 items-center justify-center rounded-full border-4 border-white ${step.iconBg} shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5`} aria-hidden="true">
                     <div className={step.iconColor}>
                       {step.icon}
                     </div>
@@ -128,8 +129,8 @@ const HowItWorks = () => {
                 </div>
 
                 {/* Text */}
-                <h3 className="text-[#292929] font-bold text-[15px] mb-1">{step.title}</h3>
-                <p className="text-[#626B65] text-[12px] leading-relaxed whitespace-pre-line">
+                <h3 className="mb-1 text-[15px] font-bold text-[#292929]">{step.title}</h3>
+                <p className="whitespace-pre-line text-xs leading-relaxed text-[#626B65]">
                   {step.desc}
                 </p>
               </div>

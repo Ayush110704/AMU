@@ -1,83 +1,96 @@
-import React from 'react';
-import AmuLogo from '../assets/AmuLogo.png';  
+import { useEffect, useRef, useState } from 'react'
+import AmuLogo from '../assets/AmuLogo.png'
 
-const Navbar = () => {
+const primaryLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Report Issue', href: '/#report-issue' },
+  { label: 'Our Representatives', href: '/representatives' },
+  { label: 'About', href: '/about' },
+]
+
+const linkStyle = 'rounded-md text-sm font-medium text-[#343B36] no-underline transition-colors duration-200 hover:text-[#006B3F]'
+
+function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuButtonRef = useRef(null)
+
+  useEffect(() => {
+    if (!isMenuOpen) return undefined
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false)
+        menuButtonRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isMenuOpen])
+
+  const closeMenu = () => setIsMenuOpen(false)
+
   return (
-    <div className="w-full pt-6 px-4">
-      <nav className="w-full max-w-7xl mx-auto bg-[#FFFFFF] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] px-6 py-3 flex items-center justify-between">
-        
-        {/* Logo */}
-        <a href="/" className="flex items-center gap-3 no-underline">
-          <div className="w-12 h-12 rounded-full border-2 border-[#006B3F] flex items-center justify-center overflow-hidden bg-white shrink-0 p-1">
-            {/* Using the imported AmuLogo image here */}
-            <img 
-              src={AmuLogo} 
-              alt="AMU Logo" 
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-[16px] font-bold text-[#292929] leading-tight">
-              Aligarh Muslim University
-            </span>
-            <span className="text-[13px] font-medium text-[#626B65]">
-              Student Election Portal
-            </span>
-          </div>
+    <div className="w-full px-3 pt-4 sm:px-4 sm:pt-6">
+      <nav aria-label="Main navigation" className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-x-5 gap-y-3 rounded-2xl border border-[#E8EBE7] bg-white px-4 py-3 shadow-[0_8px_26px_rgba(21,47,32,0.07)] sm:px-6">
+        <a href="/" className="flex min-w-0 items-center gap-3 rounded-lg no-underline">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#006B3F] bg-white p-1 sm:h-12 sm:w-12">
+            <img src={AmuLogo} alt="AMU Logo" className="h-full w-full object-contain" />
+          </span>
+          <span className="flex min-w-0 flex-col justify-center">
+            <span className="text-[14px] font-bold leading-tight tracking-[-0.02em] text-[#292929] sm:text-base">Aligarh Muslim University</span>
+            <span className="mt-0.5 text-xs font-medium text-[#626B65] sm:text-[13px]">Student Election Portal</span>
+          </span>
         </a>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center gap-8">
-          <a href="/" className="relative text-[15px] font-semibold text-[#006B3F] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-[#006B3F] after:rounded-sm no-underline">
-            Home
-          </a>
-          <a href="/report" className="text-[15px] font-medium text-[#292929] hover:text-[#006B3F] transition-colors no-underline pb-1.5">
-            Report Issue
-          </a>
-          <a href="/representatives" className="text-[15px] font-medium text-[#292929] hover:text-[#006B3F] transition-colors no-underline pb-1.5">
-            Our Representatives
-          </a>
-          <a href="/about" className="text-[15px] font-medium text-[#292929] hover:text-[#006B3F] transition-colors no-underline pb-1.5">
-            About
+        <div className="hidden items-center gap-6 lg:flex xl:gap-8">
+          {primaryLinks.map((link) => (
+            <a key={link.label} href={link.href} className={`${linkStyle} px-1 py-2 ${link.label === 'Home' ? 'font-semibold text-[#006B3F]' : ''}`}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        <div className="ml-auto hidden items-center lg:flex">
+          <a href="/#report-issue" className="inline-flex items-center gap-2 rounded-full bg-[#006B3F] px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_0_#004D2D,0_8px_16px_rgba(0,77,45,0.16)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#004D2D] hover:shadow-[0_5px_0_#004D2D,0_11px_20px_rgba(0,77,45,0.18)] active:translate-y-0">
+            Report an Issue
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </a>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-4">
-          
-          {/* Search Icon */}
-          <button className="p-2 rounded-full hover:bg-[#F5F5F0] text-[#292929] transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </button>
+        <button
+          ref={menuButtonRef}
+          type="button"
+          className="ml-auto inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#DDE5DE] bg-[#F8FAF7] text-[#004D2D] transition-colors hover:bg-[#E6F2EC] lg:hidden"
+          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          {isMenuOpen ? (
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5"><path d="m18 6-12 12M6 6l12 12" /></svg>
+          ) : (
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          )}
+        </button>
 
-          {/* Notification Icon */}
-          <button className="relative p-2 rounded-full hover:bg-[#F5F5F0] text-[#292929] transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#E53935] border-2 border-white rounded-full"></span>
-          </button>
-
-          {/* Primary Button */}
-          <a 
-            href="/report" 
-            className="bg-[#006B3F] hover:bg-[#004D2D] text-white px-5 py-2.5 rounded-full text-[14px] font-semibold flex items-center gap-2 transition-all no-underline active:scale-95 ml-2"
-          >
+        <div id="mobile-navigation" className={`${isMenuOpen ? 'grid' : 'hidden'} w-full gap-1 border-t border-[#E8EBE7] pt-3 lg:hidden`}>
+          {primaryLinks.map((link) => (
+            <a key={link.label} href={link.href} onClick={closeMenu} className={`${linkStyle} px-3 py-3 hover:bg-[#F5F7F3] ${link.label === 'Home' ? 'font-semibold text-[#006B3F]' : ''}`}>
+              {link.label}
+            </a>
+          ))}
+          <a href="/#report-issue" onClick={closeMenu} className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#006B3F] px-4 py-3 text-sm font-semibold text-white no-underline transition-colors hover:bg-[#004D2D]">
             Report an Issue
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </a>
-          
         </div>
       </nav>
     </div>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

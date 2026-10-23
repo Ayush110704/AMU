@@ -1,0 +1,95 @@
+.campus-showcase__intro,
+.campus-showcase__visual {
+  perspective: 1200px;
+}
+
+.campus-showcase__visual {
+  isolation: isolate;
+}
+
+.campus-showcase__wash {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  pointer-events: none;
+}
+
+.campus-showcase__wash--left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(237, 241, 236, .95), transparent);
+}
+
+.campus-showcase__wash--right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(237, 241, 236, .95), transparent);
+}
+
+.campus-showcase__track--forward {
+  animation: campus-marquee-forward 38s linear infinite;
+}
+
+.campus-showcase__track--reverse {
+  animation: campus-marquee-reverse 42s linear infinite;
+}
+
+.campus-showcase__track:hover {
+  animation-play-state: paused;
+}
+
+.campus-showcase__tracks--paused .campus-showcase__track {
+  animation-play-state: paused;
+}
+
+.campus-showcase__motion-control:focus-visible {
+  outline-color: #006b3f;
+}
+
+.campus-showcase__motion-icon {
+  color: #006b3f;
+  font-size: .85rem;
+  line-height: 1;
+}
+
+@keyframes campus-marquee-forward {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes campus-marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 639px) {
+  .campus-showcase__wash { width: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-showcase__motion-control { display: none; }
+
+  .campus-showcase__tracks {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-content: center;
+    gap: .35rem;
+  }
+
+  .campus-showcase__track {
+    display: contents !important;
+    width: auto !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .campus-showcase__track > .campus-showcase__photo:nth-child(n + 5) { display: none; }
+
+  .campus-showcase__photo {
+    width: auto !important;
+    height: clamp(4.25rem, 14vw, 7rem) !important;
+    padding: .15rem !important;
+  }
+
+  .campus-showcase__photo img { transition: none !important; }
+}

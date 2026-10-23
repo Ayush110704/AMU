@@ -1,129 +1,144 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react'
 
-const HeroBannerCarousel = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+const banners = [
+  {
+    id: 1,
+    image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1600&h=600',
+    title: 'Your Campus, Your Voice',
+    subtitle: 'Report issues, share suggestions, and help build a better AMU.',
+    ctaText: 'Report an Issue',
+  },
+  {
+    id: 2,
+    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1600&h=600',
+    title: 'Meet Your Representatives',
+    subtitle: 'See who is working hard to address student concerns on campus.',
+    ctaText: 'View Representatives',
+  },
+]
 
-  // Define your 2 banners here (replace the URLs with your actual images)
-  const banners = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=1600&h=600",
-      title: "Your Campus, Your Voice",
-      subtitle: "Report issues, share suggestions, and help build a better AMU.",
-      ctaText: "Report an Issue",
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1600&h=600",
-      title: "Meet Your Representatives",
-      subtitle: "See who is working hard to address student concerns on campus.",
-      ctaText: "View Representatives",
-    }
-  ];
+function HeroBannerCarousel() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
-  // Auto-play logic
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-    }, 5000); // Changes slide every 5 seconds
-    return () => clearInterval(timer);
-  }, [banners.length]);
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const updateMotionPreference = () => setPrefersReducedMotion(motionQuery.matches)
+    updateMotionPreference()
+    motionQuery.addEventListener('change', updateMotionPreference)
+    return () => motionQuery.removeEventListener('change', updateMotionPreference)
+  }, [])
 
-  const nextSlide = () => {
-    setCurrentSlide(currentSlide === banners.length - 1 ? 0 : currentSlide + 1);
-  };
+  useEffect(() => {
+    if (isPaused || prefersReducedMotion) return undefined
+    const timer = window.setInterval(() => {
+      setCurrentSlide((current) => (current + 1) % banners.length)
+    }, 5000)
+    return () => window.clearInterval(timer)
+  }, [isPaused, prefersReducedMotion])
 
-  const prevSlide = () => {
-    setCurrentSlide(currentSlide === 0 ? banners.length - 1 : currentSlide - 1);
-  };
+  const nextSlide = () => setCurrentSlide((current) => (current + 1) % banners.length)
+  const prevSlide = () => setCurrentSlide((current) => (current - 1 + banners.length) % banners.length)
 
   return (
-    <section className="w-full max-w-[1400px] mx-auto px-4 pt-6 pb-4">
-      
-      {/* Main Carousel Container */}
-      <div className="relative w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-lg group">
-        
-        {/* Map through banners */}
-        {banners.map((banner, index) => (
-          <div
-            key={banner.id}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
-              index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-          >
-            {/* Background Image with Dark Overlay for text readability */}
-            <div className="absolute inset-0 bg-black/40 z-10"></div>
-            <img 
-              src={banner.image} 
-              alt={banner.title} 
-              className="w-full h-full object-cover"
-            />
+    <section className="mx-auto w-full max-w-[1400px] px-3 pb-4 pt-5 sm:px-4 sm:pt-6" aria-label="Campus highlights">
+      <div
+        className="group relative h-[430px] w-full overflow-hidden rounded-[1.5rem] bg-[#004D2D] shadow-[0_18px_45px_rgba(0,45,27,0.2)] sm:h-[470px] sm:rounded-[1.75rem] lg:h-[520px]"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="AMU campus highlights"
+        aria-live={isPaused || prefersReducedMotion ? 'polite' : 'off'}
+      >
+        {banners.map((banner, index) => {
+          const isActive = index === currentSlide
+          return (
+            <div
+              key={banner.id}
+              className={`absolute inset-0 h-full w-full transition-opacity duration-700 ease-in-out ${isActive ? 'z-10 opacity-100' : 'pointer-events-none z-0 opacity-0'}`}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${index + 1} of ${banners.length}`}
+              aria-hidden={!isActive}
+              inert={!isActive}
+            >
+              <img
+                src={banner.image}
+                alt={banner.title}
+                className="h-full w-full object-cover object-center"
+                fetchPriority={index === 0 ? 'high' : 'auto'}
+              />
+              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/15" />
 
-            {/* Banner Content */}
-            <div className="absolute inset-0 z-20 flex flex-col justify-center items-start px-8 md:px-16 lg:px-24">
-              <div className="max-w-2xl">
-                <span className="bg-[#D4AF37] text-[#292929] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4 inline-block">
-                  Student Election Portal
-                </span>
-                <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4 drop-shadow-md">
-                  {banner.title}
-                </h1>
-                <p className="text-white/90 text-lg md:text-xl mb-8 max-w-lg drop-shadow-sm font-medium">
-                  {banner.subtitle}
-                </p>
-                <button className="bg-white hover:bg-gray-100 text-[#006B3F] px-8 py-3.5 rounded-full text-[15px] font-bold transition-all shadow-md active:scale-95 flex items-center gap-2">
-                  {banner.ctaText}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
-                </button>
+              <div className="absolute inset-0 z-10 flex flex-col items-start justify-center px-6 pb-8 sm:px-10 md:px-14 lg:px-20">
+                <div className="max-w-2xl">
+                  <span className="mb-5 inline-flex rounded-full border border-[#D4AF37]/60 bg-[#D4AF37] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#292929] shadow-sm sm:text-xs">
+                    Student Election Portal
+                  </span>
+                  <h1 className="mb-4 max-w-[15ch] text-[clamp(2.25rem,7.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.25)]">
+                    {banner.title}
+                  </h1>
+                  <p className="mb-7 max-w-lg text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)] sm:mb-8 sm:text-lg md:text-xl">
+                    {banner.subtitle}
+                  </p>
+                  {banner.ctaText === 'Report an Issue' ? (
+                    <a href="#report-issue" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#F5F5F0] active:translate-y-0 sm:px-7 sm:text-[15px]">
+                      {banner.ctaText}
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    </a>
+                  ) : (
+                    <a href="/representatives" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0 sm:px-7 sm:text-[15px]">
+                      {banner.ctaText}
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
-        {/* Left Arrow Navigation */}
-        <button 
+        <button
+          type="button"
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100 border border-white/30"
+          className="absolute bottom-16 left-3 top-auto z-20 flex h-10 w-10 translate-y-0 items-center justify-center rounded-full border border-white/40 bg-black/25 text-white shadow-lg backdrop-blur-md transition hover:bg-black/50 sm:bottom-auto sm:left-5 sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
           aria-label="Previous slide"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
-
-        {/* Right Arrow Navigation */}
-        <button 
+        <button
+          type="button"
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100 border border-white/30"
+          className="absolute bottom-16 right-3 top-auto z-20 flex h-10 w-10 translate-y-0 items-center justify-center rounded-full border border-white/40 bg-black/25 text-white shadow-lg backdrop-blur-md transition hover:bg-black/50 sm:bottom-auto sm:right-5 sm:top-1/2 sm:h-12 sm:w-12 sm:-translate-y-1/2"
           aria-label="Next slide"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
 
-        {/* Bottom Dots (Pagination) */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-          {banners.map((_, index) => (
+        <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/30 px-2.5 py-2 backdrop-blur-md sm:bottom-5">
+          {banners.map((banner, index) => (
             <button
-              key={index}
+              key={banner.id}
+              type="button"
               onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              className={`transition-all duration-300 rounded-full ${
-                index === currentSlide 
-                  ? 'w-8 h-2.5 bg-[#D4AF37]' // Active dot (Gold)
-                  : 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80' // Inactive dot
-              }`}
+              aria-label={`Show slide ${index + 1}: ${banner.title}`}
+              aria-pressed={index === currentSlide}
+              className={`h-2.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-7 bg-[#D4AF37]' : 'w-2.5 bg-white/65 hover:bg-white'}`}
             />
           ))}
         </div>
 
+        {!prefersReducedMotion && <button
+          type="button"
+          onClick={() => setIsPaused((paused) => !paused)}
+          aria-label={isPaused ? 'Play carousel' : 'Pause carousel'}
+          className="absolute bottom-4 right-3 z-20 flex min-h-10 items-center justify-center rounded-full border border-white/30 bg-black/30 px-3 text-xs font-semibold text-white shadow-lg backdrop-blur-md transition hover:bg-black/50 sm:bottom-5 sm:right-5 sm:min-h-11 sm:px-4"
+        >
+          {isPaused ? 'Play' : 'Pause'}
+        </button>}
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default HeroBannerCarousel;
+export default HeroBannerCarousel
