@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import Navbar from './Components/Navbar'
+import Footer from './Components/Footer'
 
 function App() { 
-
   return (
-    <> 
-    </>
+    <div className="min-h-screen bg-[#F5F5F0] font-sans flex flex-col"> 
+      <Navbar />
+ 
+ 
+      <Footer />
+    </div>
   )
 }
 
