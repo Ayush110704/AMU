@@ -1,22 +1,20 @@
 import React from 'react';
-
-const LogoIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-[#006B3F]">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <path d="M12 8v8" />
-    <path d="M8 12h8" />
-  </svg>
-);
+import AmuLogo from '../assets/AmuLogo.png';  
 
 const Navbar = () => {
   return (
     <div className="w-full pt-6 px-4">
       <nav className="w-full max-w-7xl mx-auto bg-[#FFFFFF] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] px-6 py-3 flex items-center justify-between">
         
-        {/*  Logo */}
+        {/* Logo */}
         <a href="/" className="flex items-center gap-3 no-underline">
-          <div className="w-12 h-12 rounded-full border-2 border-[#006B3F] flex items-center justify-center overflow-hidden bg-white shrink-0"> 
-            <LogoIcon />
+          <div className="w-12 h-12 rounded-full border-2 border-[#006B3F] flex items-center justify-center overflow-hidden bg-white shrink-0 p-1">
+            {/* Using the imported AmuLogo image here */}
+            <img 
+              src={AmuLogo} 
+              alt="AMU Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="flex flex-col justify-center">
             <span className="text-[16px] font-bold text-[#292929] leading-tight">
