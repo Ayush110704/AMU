@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useAnimationFrame, useMotionValue } from 'framer-motion';
+import { motion, useAnimationFrame, useMotionValue, useInView } from 'framer-motion';
 
 // Sample Data
 const representatives = [
@@ -8,7 +8,7 @@ const representatives = [
     name: 'Ahmed Khan',
     role: 'President',
     faculty: 'Arts Faculty',
-    roleColor: 'bg-[#E6F4EA] text-[#137333]', // Green
+    roleColor: 'bg-[#E6F4EA] text-[#137333]',
     image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200',
   },
   {
@@ -16,7 +16,7 @@ const representatives = [
     name: 'Sara Ahmed',
     role: 'Vice President',
     faculty: 'Science Faculty',
-    roleColor: 'bg-[#FEF7E0] text-[#B06000]', // Yellow
+    roleColor: 'bg-[#FEF7E0] text-[#B06000]',
     image: 'https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?auto=format&fit=crop&q=80&w=200&h=200',
   },
   {
@@ -24,7 +24,7 @@ const representatives = [
     name: 'Faizan Ali',
     role: 'General Secretary',
     faculty: 'Engineering Faculty',
-    roleColor: 'bg-[#E6F4EA] text-[#137333]', // Green
+    roleColor: 'bg-[#E6F4EA] text-[#137333]',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200',
   },
   {
@@ -32,7 +32,7 @@ const representatives = [
     name: 'Zoya Khan',
     role: 'Hostel Affairs',
     faculty: 'Hostel & Accommodation',
-    roleColor: 'bg-[#E6F4EA] text-[#137333]', // Green
+    roleColor: 'bg-[#E6F4EA] text-[#137333]',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200',
   },
   {
@@ -40,12 +40,11 @@ const representatives = [
     name: 'Armaan Siddiqui',
     role: 'Infrastructure',
     faculty: 'Campus Facilities',
-    roleColor: 'bg-[#FEF7E0] text-[#B06000]', // Yellow
+    roleColor: 'bg-[#FEF7E0] text-[#B06000]',
     image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200',
   }
 ];
 
-// Duplicate for infinite scrolling
 const duplicatedReps = [...representatives, ...representatives, ...representatives];
 
 export default function RepresentativesCarousel() {
@@ -53,8 +52,31 @@ export default function RepresentativesCarousel() {
   const baseX = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+ 
+  const headingRef = useRef(null); 
+  const isInView = useInView(headingRef, { once: true, margin: "0px 0px -100px 0px" });
+  
+  const fullText = "Our Representatives";
+  const [typedText, setTypedText] = useState("");
+  const [isTypingDone, setIsTypingDone] = useState(false);
 
-  // Initialize starting position for left-to-right scroll
+  useEffect(() => { 
+    if (isInView) {
+      let currentIndex = 0;
+      
+      const intervalId = setInterval(() => {
+        setTypedText(fullText.slice(0, currentIndex + 1));
+        currentIndex++;
+        if (currentIndex === fullText.length) {
+          clearInterval(intervalId);
+          setIsTypingDone(true);
+        }
+      }, 70); // Speed of typing
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [isInView, fullText]); 
+
   useEffect(() => {
     if (containerRef.current && !isInitialized) {
       const oneSetWidth = containerRef.current.scrollWidth / 3;
@@ -63,7 +85,6 @@ export default function RepresentativesCarousel() {
     }
   }, [baseX, isInitialized]);
 
-  // Animation Loop
   useAnimationFrame((t, delta) => {
     if (isHovered || !isInitialized) return;
 
@@ -72,7 +93,6 @@ export default function RepresentativesCarousel() {
 
     if (containerRef.current) {
       const oneSetWidth = containerRef.current.scrollWidth / 3;
-      
       if (newX >= 0) {
         newX = -oneSetWidth;
       }
@@ -81,11 +101,9 @@ export default function RepresentativesCarousel() {
     baseX.set(newX);
   });
 
-  // Manual scroll functions for the arrow buttons
   const handleManualScroll = (direction) => {
     setIsHovered(true);
     setTimeout(() => setIsHovered(false), 2000);
-    
     const shift = direction === 'right' ? 480 : -480;
     baseX.set(baseX.get() + shift);
   };
@@ -99,12 +117,37 @@ export default function RepresentativesCarousel() {
           <span className="mb-2 inline-block rounded-full bg-[#FEF7E0] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#B06000]">
             Student Leadership
           </span>
-          <h2 className="flex items-center gap-2 text-3xl font-extrabold text-[#004D2D] sm:text-4xl">
-            Our Representatives
-            {/* Custom doodle arrow SVG (approximation) */}
-            <svg className="h-8 w-8 text-[#D4AF37] -ml-2 mt-2" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10,80 Q40,20 80,40 M80,40 L60,20 M80,40 L60,60" />
-            </svg>
+          
+          {/* Typing Heading Container */}
+          <h2 ref={headingRef} className="flex items-center gap-2 text-3xl font-extrabold text-[#004D2D] sm:text-4xl min-h-[40px] sm:min-h-[48px]">
+            {typedText}
+            
+            {/* Blinking Cursor while typing */}
+            {isInView && !isTypingDone && (
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                className="inline-block w-1.5 h-7 sm:h-9 bg-[#004D2D] ml-1 rounded-sm"
+              />
+            )}
+
+            {/*  doodle arrow   */}
+            {isTypingDone && (
+              <motion.svg 
+                initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 12 }}
+                className="h-8 w-8 text-[#D4AF37] -ml-2 mt-2" 
+                viewBox="0 0 100 100" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="6" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M10,80 Q40,20 80,40 M80,40 L60,20 M80,40 L60,60" />
+              </motion.svg>
+            )}
           </h2>
         </div>
 
@@ -114,7 +157,6 @@ export default function RepresentativesCarousel() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Left Arrow Button */}
           <button 
             onClick={() => handleManualScroll('left')}
             className="absolute left-0 z-30 flex h-10 w-10 -translate-x-2 items-center justify-center rounded-full bg-white text-[#004D2D] shadow-lg border border-gray-100 hover:scale-105 active:scale-95 sm:translate-x-0 md:h-12 md:w-12"
@@ -123,11 +165,9 @@ export default function RepresentativesCarousel() {
              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
 
-          {/* Fading Edges */}
           <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-[#F7F8F9] to-transparent"></div>
           <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-[#F7F8F9] to-transparent"></div>
 
-          {/* Scrolling Track */}
           <div className="w-full overflow-hidden px-8 py-4">
             <motion.div 
               ref={containerRef}
@@ -139,12 +179,10 @@ export default function RepresentativesCarousel() {
                   key={`${rep.id}-${index}`}
                   className="flex w-[320px] shrink-0 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  {/* Avatar */}
                   <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full border-2 border-gray-100">
                     <img src={rep.image} alt={rep.name} className="h-full w-full object-cover" />
                   </div>
                   
-                  {/* Info */}
                   <div className="flex flex-col flex-grow">
                     <h3 className="text-[15px] font-bold text-[#333333]">{rep.name}</h3>
                     
@@ -154,7 +192,6 @@ export default function RepresentativesCarousel() {
                     
                     <p className="text-xs font-medium text-gray-500">{rep.faculty}</p>
                     
-                    {/* Social Icons */}
                     <div className="mt-2 flex items-center gap-3 text-gray-400">
                       <a href="#" className="transition-colors hover:text-[#004D2D]">
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -172,7 +209,6 @@ export default function RepresentativesCarousel() {
             </motion.div>
           </div>
 
-          {/* Right Arrow Button */}
           <button 
             onClick={() => handleManualScroll('right')}
             className="absolute right-0 z-30 flex h-10 w-10 translate-x-2 items-center justify-center rounded-full bg-white text-[#004D2D] shadow-lg border border-gray-100 hover:scale-105 active:scale-95 sm:translate-x-0 md:h-12 md:w-12"

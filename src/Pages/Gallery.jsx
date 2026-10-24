@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import './Gallery.css'
 
 const carouselImagesTop = [
@@ -15,43 +16,110 @@ const carouselImagesBottom = [
   'https://images.unsplash.com/photo-1532649538693-f3a2ec1bf8bd?auto=format&fit=crop&q=80&w=400&h=300',
 ]
 
+// Framer Motion Variants for the staggered entrance
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: 'spring', stiffness: 200, damping: 20 } 
+  },
+}
+
+const titleWordVariants = {
+  hidden: { opacity: 0, y: 40, rotateX: -30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    rotateX: 0,
+    transition: { type: 'spring', stiffness: 250, damping: 22 } 
+  },
+}
+
 function Gallery() {
   const [motionPaused, setMotionPaused] = useState(false)
 
+  // Split  
+  const headingText = ['Explore', 'the']
+
   return (
     <section className="campus-showcase relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 overflow-hidden px-4 py-14 sm:gap-12 sm:py-16 lg:flex-row lg:justify-between lg:gap-8 lg:py-20" aria-labelledby="campus-showcase-heading">
-      <div className="z-10 flex w-full min-w-0 flex-col items-start [perspective:1200px] lg:w-[44%]">
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#006B3F]/10 bg-[#E6F2EC] px-4 py-2">
+      
+      {/* LEFT COLUMN */}
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        className="z-10 flex w-full min-w-0 flex-col items-start [perspective:1200px] lg:w-[44%]"
+      >
+        <motion.div variants={itemVariants} className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#006B3F]/10 bg-[#E6F2EC] px-4 py-2">
           <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" aria-hidden="true" />
           <span className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#006B3F] sm:text-[11px]">
             Students · Ideas · Action
           </span>
-        </div>
+        </motion.div>
 
+        {/* Animated Heading */}
         <h2 id="campus-showcase-heading" className="max-w-[14ch] text-4xl font-extrabold leading-[1.06] tracking-[-0.04em] text-[#292929] sm:text-5xl lg:text-[3.5rem]">
-          Explore the <span className="relative inline-block text-[#006B3F]">campus
+          {headingText.map((word, i) => (
+            <motion.span key={i} variants={titleWordVariants} className="inline-block mr-2 sm:mr-3">
+              {word}
+            </motion.span>
+          ))}
+          
+          <motion.span variants={titleWordVariants} className="relative inline-block text-[#006B3F]">
+            campus
             <svg aria-hidden="true" className="absolute -bottom-2 left-0 h-3 w-full text-[#D4AF37]" viewBox="0 0 100 20" preserveAspectRatio="none">
-              <path d="M0,10 Q50,20 100,5" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+              <motion.path 
+                d="M0,10 Q50,20 100,5" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="4" 
+                strokeLinecap="round"
+                initial={{ pathLength: 0 }}
+                whileInView={{ pathLength: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.8, ease: "easeInOut" }}
+              />
             </svg>
-          </span>
+          </motion.span>
         </h2>
 
-        <p className="mt-5 max-w-xl text-[15px] leading-7 text-[#626B65] sm:text-base">
+        <motion.p variants={itemVariants} className="mt-5 max-w-xl text-[15px] leading-7 text-[#626B65] sm:text-base">
           Report your problems, share your suggestions and let your elected student representatives take action for a better AMU.
-        </p>
+        </motion.p>
 
-        <div className="mt-7 flex flex-wrap items-center gap-3 sm:gap-4">
-          <a href="#report-issue" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#006B3F] px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_0_#004D2D,0_9px_18px_rgba(0,77,45,0.14)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#004D2D] active:translate-y-0 sm:px-6 sm:text-[15px]">
+        <motion.div variants={itemVariants} className="mt-7 flex flex-wrap items-center gap-3 sm:gap-4">
+          <motion.a 
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            href="#report-issue" 
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#006B3F] px-5 py-3 text-sm font-semibold text-white shadow-[0_4px_0_#004D2D,0_9px_18px_rgba(0,77,45,0.14)] no-underline transition-colors duration-200 hover:bg-[#004D2D] sm:px-6 sm:text-[15px]"
+          >
             Report an Issue
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </a>
-          <a href="#" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#D1D5DB] bg-white px-5 py-3 text-sm font-semibold text-[#292929] shadow-sm no-underline transition duration-200 hover:-translate-y-0.5 hover:border-[#006B3F]/35 hover:bg-[#FAFBF9] active:translate-y-0 sm:px-6 sm:text-[15px]">
+          </motion.a>
+          <motion.a 
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            href="#" 
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#D1D5DB] bg-white px-5 py-3 text-sm font-semibold text-[#292929] shadow-sm no-underline transition-colors duration-200 hover:border-[#006B3F]/35 hover:bg-[#FAFBF9] sm:px-6 sm:text-[15px]"
+          >
             See Representatives
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></svg>
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
 
-        <div className="mt-7 flex items-center gap-4">
+        <motion.div variants={itemVariants} className="mt-7 flex items-center gap-4">
           <div className="flex -space-x-3" aria-hidden="true">
             <img className="h-9 w-9 rounded-full border-2 border-[#F5F5F0] object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="" />
             <img className="h-9 w-9 rounded-full border-2 border-[#F5F5F0] object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" alt="" />
@@ -62,9 +130,10 @@ function Gallery() {
             <span className="text-sm font-bold text-[#292929]">1,200+</span>
             <span className="max-w-[14rem] text-xs leading-5 text-[#626B65]">students already shared their concerns</span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
+      {/* RIGHT COLUMN  */}
       <div className="relative isolate h-[340px] w-full min-w-0 overflow-hidden rounded-[1.6rem] border border-white/70 bg-[#EDF1EC] shadow-[0_18px_42px_rgba(25,48,35,0.13)] [perspective:1200px] sm:h-[390px] lg:h-[450px] lg:w-[52%]" role="group" aria-label="Campus photo carousel">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-[linear-gradient(90deg,rgba(237,241,236,0.95),transparent)] max-sm:w-5" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-[linear-gradient(270deg,rgba(237,241,236,0.95),transparent)] max-sm:w-5" aria-hidden="true" />

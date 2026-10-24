@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react' 
+import { motion, AnimatePresence } from 'framer-motion'
 import abdulBasidBanner from '../assets/abdulbasidbanner.png' 
 
 const banners = [
@@ -25,6 +26,37 @@ const banners = [
     customLayout: true  
   },
 ]
+ 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,  
+      delayChildren: 0.2,
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, filter: 'blur(5px)' },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    filter: 'blur(0px)',
+    transition: { type: 'spring', stiffness: 300, damping: 24 }
+  }
+}
+
+const titleWordVariants = {
+  hidden: { opacity: 0, y: 40, rotateX: -20 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    rotateX: 0,
+    transition: { type: 'spring', stiffness: 200, damping: 20 }
+  }
+}
 
 function HeroBannerCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -77,19 +109,12 @@ function HeroBannerCarousel() {
                 fetchPriority={index === 0 ? 'high' : 'auto'}
               />
               
-              {/* Gradient overlay - lighter/none for the custom poster */}
               <div aria-hidden="true" className={`absolute inset-0 bg-gradient-to-r ${banner.customLayout ? 'from-transparent via-transparent to-transparent' : 'from-black/75 via-black/45 to-black/15'}`} />
 
               <div className="absolute inset-0 z-10 flex flex-col items-start justify-center px-6 pb-8 sm:px-10 md:px-14 lg:px-20">
                 
-                {/* CUSTOM LAYOUT FOR ABDUL BASID BANNER */}
                 {banner.customLayout ? (
                   <div className="relative h-full w-full">
-                    {/* 
-                      Because the text is already in your image, we don't add text here. 
-                      Instead, we place an invisible link exactly over the "For Court Membership" button 
-                      in the image so it acts as a clickable CTA.
-                    */}
                     <a 
                       href="/profile/abdul-basid" 
                       aria-label="View Abdul Basid's profile for Court Membership"
@@ -97,30 +122,62 @@ function HeroBannerCarousel() {
                     ></a>
                   </div>
                 ) : (
-                  
-                /* DEFAULT LAYOUT FOR OTHER BANNERS */
-                  <div className="max-w-2xl">
-                    <span className="mb-5 inline-flex rounded-full border border-[#D4AF37]/60 bg-[#D4AF37] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#292929] shadow-sm sm:text-xs">
+                   
+                  <motion.div 
+                    key={currentSlide}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate={isActive ? "show" : "hidden"}
+                    className="max-w-2xl"
+                  >
+                    <motion.span 
+                      variants={itemVariants}
+                      className="mb-5 inline-flex rounded-full border border-[#D4AF37]/60 bg-[#D4AF37] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#292929] shadow-sm sm:text-xs"
+                    >
                       {banner.badge}
-                    </span>
-                    <h1 className="mb-4 max-w-[15ch] text-[clamp(2.25rem,7.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.25)]">
-                      {banner.title}
+                    </motion.span>
+                    
+                    <h1 className="mb-4 max-w-[15ch] text-[clamp(2.25rem,7.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.25)] flex flex-wrap gap-x-3 gap-y-1">
+                      {banner.title.split(' ').map((word, i) => (
+                        <motion.span 
+                          key={i} 
+                          variants={titleWordVariants}
+                          className="inline-block"
+                        >
+                          {word}
+                        </motion.span>
+                      ))}
                     </h1>
-                    <p className="mb-7 max-w-lg text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)] sm:mb-8 sm:text-lg md:text-xl">
+
+                    <motion.p 
+                      variants={itemVariants}
+                      className="mb-7 max-w-lg text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)] sm:mb-8 sm:text-lg md:text-xl"
+                    >
                       {banner.subtitle}
-                    </p>
-                    {banner.ctaText === 'Report an Issue' ? (
-                      <a href="#report-issue" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#F5F5F0] active:translate-y-0 sm:px-7 sm:text-[15px]">
-                        {banner.ctaText}
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                      </a>
-                    ) : (
-                      <a href="/representatives" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0 sm:px-7 sm:text-[15px]">
-                        {banner.ctaText}
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                      </a>
-                    )}
-                  </div>
+                    </motion.p>
+
+                    <motion.div variants={itemVariants}>
+                      {banner.ctaText === 'Report an Issue' ? (
+                        <a href="#report-issue" className="group/btn relative overflow-hidden inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#F5F5F0] hover:shadow-[0_8px_0_rgba(0,0,0,0.15),0_15px_30px_rgba(0,0,0,0.25)] active:translate-y-0 active:scale-100 sm:px-7 sm:text-[15px]">
+                          
+                          {/* Shine Effect */}
+                          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                          
+                          <span className="relative z-10">{banner.ctaText}</span>
+                          <svg className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                        </a>
+                      ) : (
+                        <a href="/representatives" className="group/btn relative overflow-hidden inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-white hover:shadow-[0_8px_0_rgba(0,0,0,0.15),0_15px_30px_rgba(0,0,0,0.25)] active:translate-y-0 active:scale-100 sm:px-7 sm:text-[15px]">
+                          
+                          {/* Shine Effect */}
+                          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#006B3F]/10 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                          
+                          <span className="relative z-10">{banner.ctaText}</span>
+                          <svg className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                        </a>
+                      )}
+                    </motion.div>
+                  </motion.div>
                 )}
               </div>
             </div>

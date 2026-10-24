@@ -1,7 +1,7 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const HowItWorks = () => {
-  // Data for the steps to keep the JSX clean
   const steps = [
     {
       num: '1',
@@ -67,72 +67,100 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="how-it-works relative w-full overflow-hidden bg-[#F5F5F0] px-4 py-14 sm:py-16 lg:py-20" aria-labelledby="how-it-works-heading">
-      {/* Optional: Subtle background blobs to match the image's organic feel */}
-      <div aria-hidden="true" className="absolute top-0 right-0 w-64 h-64 bg-[#E6F2EC] rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+    <section className="relative w-full overflow-hidden bg-[#F8FAF8] px-4 py-16 sm:py-20 lg:py-24" aria-labelledby="how-it-works-heading">
       
-      <div className="how-it-works__layout relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-9 lg:flex-row lg:gap-6">
+      {/* BACKGROUND DECORATIONS */}
+      <div aria-hidden="true" className="absolute top-0 right-0 h-[30rem] w-[30rem] translate-x-1/3 -translate-y-1/3 rounded-full bg-[#E6F2EC] opacity-70 mix-blend-multiply blur-[100px] pointer-events-none"></div>
+      <div aria-hidden="true" className="absolute bottom-0 left-0 h-[25rem] w-[25rem] -translate-x-1/3 translate-y-1/3 rounded-full bg-[#F8F0D8] opacity-60 mix-blend-multiply blur-[90px] pointer-events-none"></div>
+      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40 pointer-events-none [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+
+      {/* MAIN CONTENT */}
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-9 lg:flex-row lg:gap-6">
         
-        {/* Title Section (Left) */}
-        <div className="how-it-works__intro relative flex w-full shrink-0 flex-col items-start lg:w-[24%]">
-          <span className="bg-[#E6F2EC] text-[#006B3F] text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-3">
+        {/* Title Section */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="relative flex w-full shrink-0 flex-col items-start lg:w-[24%]"
+        >
+          <span className="bg-[#E6F2EC] text-[#006B3F] text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-3 shadow-sm border border-[#006B3F]/10">
             Simple Process
           </span>
           <div className="relative">
             <h2 id="how-it-works-heading" className="text-3xl font-extrabold tracking-[-0.035em] text-[#292929] sm:text-4xl">
               How It Works
             </h2>
-            {/* Playful sketch lines */}
+            
+            {/* ANIMATED UNDERLINE SVG */}
+            <svg 
+              aria-hidden="true" 
+              className="absolute -bottom-3 left-0 w-full h-[12px] text-[#D4AF37]" 
+              viewBox="0 0 100 12" 
+              preserveAspectRatio="none"
+            >
+              <motion.path 
+                d="M0,8 Q50,12 100,3" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="4" 
+                strokeLinecap="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.4, ease: "easeInOut" }}
+              />
+            </svg>
+
             <svg aria-hidden="true" className="absolute -right-8 -top-2 w-8 h-8 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <line x1="4" y1="12" x2="8" y2="6"></line>
               <line x1="10" y1="16" x2="14" y2="8"></line>
               <line x1="16" y1="14" x2="20" y2="10"></line>
             </svg>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Steps Timeline (Right) */}
-        <div className="how-it-works__steps relative flex w-full flex-col items-stretch justify-between gap-3 md:flex-row md:items-start md:gap-3 lg:w-[73%]" role="list" aria-label="Complaint resolution steps">
+        {/* Timeline Steps */}
+        <div className="relative flex w-full flex-col items-stretch justify-between gap-3 md:flex-row md:items-start md:gap-3 lg:w-[73%]" role="list">
           
           {steps.map((step, index) => (
-            <div key={step.num} className="how-it-works__step group relative flex w-full flex-1 flex-col items-center md:min-w-0" role="listitem">
+            <div key={step.num} className="group relative flex w-full flex-1 flex-col items-center md:min-w-0" role="listitem">
               
-              {/* Connecting Dotted Line (Hidden on mobile and for the last item) */}
-              {index !== steps.length - 1 && (
-                <div aria-hidden="true" className="how-it-works__connector absolute left-[50%] top-5 z-0 hidden h-[2px] w-full border-t-2 border-dashed border-[#CBD5CE] md:block">
-                  {/* Small Arrow at the end of the line */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
-                     <svg viewBox="0 0 24 24" fill="none" stroke="#AAB7AE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 bg-[#F5F5F0]">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                     </svg>
-                  </div>
-                </div>
-              )}
-
-              {/* Step Content Wrapper */}
-              <div className="relative z-10 flex w-full flex-col items-center rounded-[1.2rem] border border-[rgba(29,58,42,0.09)] bg-[linear-gradient(150deg,#fff,#fbfcfa)] px-4 py-5 text-center shadow-[0_3px_8px_rgba(25,48,35,0.035),0_12px_28px_rgba(25,48,35,0.055),0_1px_0_#fff_inset] transition-[transform,border-color,box-shadow] duration-[220ms] ease-[ease] group-hover:-translate-y-[3px] group-hover:border-[rgba(0,107,63,0.2)] group-hover:shadow-[0_5px_12px_rgba(25,48,35,0.04),0_17px_32px_rgba(25,48,35,0.075),0_1px_0_#fff_inset] motion-reduce:transition-none motion-reduce:group-hover:transform-none sm:px-5 md:min-h-[182px] md:px-3 md:py-5">
+              {/* ANIMATED Step Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 120, 
+                  damping: 15,
+                  delay: index * 0.6 
+                }}
+                whileHover={{ y: -5, boxShadow: "0_10px_25px_rgba(25,48,35,0.08)", borderColor: "rgba(0,107,63,0.2)" }}
+                className="relative z-10 flex w-full flex-col items-center rounded-[1.2rem] border border-[rgba(29,58,42,0.09)] bg-[linear-gradient(150deg,#ffffff,#fbfcfa)] px-4 py-5 text-center shadow-[0_3px_8px_rgba(25,48,35,0.035),0_12px_28px_rgba(25,48,35,0.055),0_1px_0_#fff_inset] backdrop-blur-sm sm:px-5 md:min-h-[182px] md:px-3 md:py-5"
+              >
                 
-                {/* Icons & Numbers Row */}
                 <div className="mb-4 flex items-center gap-3">
                   {/* Number Badge */}
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step.numColor} text-sm font-bold ${step.num === '2' ? 'text-[#292929]' : 'text-white'} shadow-[0_3px_8px_rgba(0,77,45,0.15),0_1px_0_rgba(255,255,255,0.24)_inset] transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100`} aria-hidden="true">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step.numColor} text-sm font-bold ${step.num === '2' ? 'text-[#292929]' : 'text-white'} shadow-[0_3px_8px_rgba(0,77,45,0.15),0_1px_0_rgba(255,255,255,0.24)_inset]`} aria-hidden="true">
                     {step.num}
                   </div>
                   
                   {/* Icon Circle */}
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full border-4 border-white ${step.iconBg} shadow-[0_4px_10px_rgba(25,48,35,0.09),0_1px_0_#fff_inset] transition-transform duration-300 group-hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0`} aria-hidden="true">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full border-4 border-white ${step.iconBg} shadow-[0_4px_10px_rgba(25,48,35,0.09),0_1px_0_#fff_inset]`} aria-hidden="true">
                     <div className={step.iconColor}>
                       {step.icon}
                     </div>
                   </div>
                 </div>
 
-                {/* Text */}
                 <h3 className="mb-1 text-[15px] font-bold text-[#292929]">{step.title}</h3>
                 <p className="whitespace-pre-line text-xs leading-relaxed text-[#626B65]">
                   {step.desc}
                 </p>
-              </div>
+              </motion.div>
 
             </div>
           ))}
