@@ -8,8 +8,9 @@ import Footer from './Components/Footer'
 import HowItWorks from './Pages/HowItWorks'
 import ComplaintForm from './Pages/ComplaintForm'
 
-//Admin
+// Admin Imports
 import AdminAuth from './Admin/AdminAuth'  
+import AdminDashboard from './Admin/AdminDashboard'
 
 // The main homepage layout
 function HomePage() {
@@ -33,10 +34,13 @@ function App() {
       <Routes>
         {/* Main Website */}
         <Route path="/" element={<HomePage />} /> 
+        
+        {/* Admin Routes */}
         <Route path="/admin" element={<AdminAuth />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   )
 }
 
-export default App
+export default App  

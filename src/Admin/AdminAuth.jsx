@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom'; // <-- IMPORTED
 
 export default function AdminAuth() {
+  const navigate = useNavigate(); // <-- INITIALIZED
+  
   const [isLogin, setIsLogin] = useState(true);
-   
   const [regStep, setRegStep] = useState('details');
   
   // Forgot Password State
@@ -22,19 +24,34 @@ export default function AdminAuth() {
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
  
-  
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('Logging in...', { email, password });
+    setError('');
+    setIsLoading(true);
+
+    // Simulate API Login
+    setTimeout(() => {
+      setIsLoading(false);
+      // If login is successful, redirect to dashboard
+      navigate('/admin/dashboard'); 
+    }, 1000);
   };
 
   const handleRequestOTP = (e) => {
     e.preventDefault();
     setError('');
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
+
+    const SECRET_KEY = "AMU-Admin-2026"; 
+    if (adminCode !== SECRET_KEY) {
+      setError('Invalid Secret Admin Code. You are not authorized.');
+      return;
+    }
+
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -47,9 +64,10 @@ export default function AdminAuth() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      console.log('Registration successful!', { name, email, password, adminCode, otp });
+      setSuccessMsg('Registration successful! Please login.');
       setRegStep('details');
       setIsLogin(true);
+      setTimeout(() => setSuccessMsg(''), 3000);
     }, 1000);
   };
 
@@ -58,7 +76,6 @@ export default function AdminAuth() {
     if(!email) { setError('Please enter your email'); return; }
     setError('');
     setIsLoading(true);
-    // Simulate sending OTP
     setTimeout(() => {
       setIsLoading(false);
       setForgotStep(2);
@@ -118,7 +135,6 @@ export default function AdminAuth() {
   return (
     <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center p-4 sm:p-6 lg:p-8 [perspective:2000px]">
       
-      {/* Decorative Background */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-[#E6F2EC] rounded-full mix-blend-multiply filter blur-3xl opacity-60 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#E6F2EC] rounded-full mix-blend-multiply filter blur-3xl opacity-40 translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
@@ -168,17 +184,14 @@ export default function AdminAuth() {
 
               <div className="flex-1 p-8 relative overflow-y-auto">
                 
-                {/* Global Messages */}
                 {error && <div className="absolute top-2 left-6 right-6 bg-red-50 text-red-500 text-xs p-2 rounded-lg text-center font-medium border border-red-100 z-20">{error}</div>}
                 {successMsg && <div className="absolute top-2 left-6 right-6 bg-green-50 text-green-600 text-xs p-2 rounded-lg text-center font-medium border border-green-100 z-20">{successMsg}</div>}
 
                 <AnimatePresence mode="wait">
                   
-                  {/* 1. FORGOT PASSWORD FLOW */}
                   {showForgot ? (
                     <motion.div key="forgot-flow" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="h-full flex flex-col justify-center">
                       
-                      {/* Step 1: Enter Email */}
                       {forgotStep === 1 && (
                         <form onSubmit={handleForgotRequest} className="flex flex-col gap-5">
                           <div>
@@ -194,7 +207,6 @@ export default function AdminAuth() {
                         </form>
                       )}
 
-                      {/* Step 2: Enter OTP */}
                       {forgotStep === 2 && (
                         <form onSubmit={handleForgotVerifyOTP} className="flex flex-col gap-5">
                           <div>
@@ -210,7 +222,6 @@ export default function AdminAuth() {
                         </form>
                       )}
 
-                      {/* Step 3: New Password */}
                       {forgotStep === 3 && (
                         <form onSubmit={handleResetPassword} className="flex flex-col gap-4">
                           <div>
@@ -230,7 +241,6 @@ export default function AdminAuth() {
                     </motion.div>
                   ) : (
                     
-                  /* 2. NORMAL LOGIN FLOW */
                     <motion.form key="login-form" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} onSubmit={handleLogin} className="h-full flex flex-col justify-center gap-5">
                       <div>
                         <label className="block text-[#292929] text-sm font-semibold mb-1.5">Email Address</label>
@@ -243,7 +253,9 @@ export default function AdminAuth() {
                         </div>
                         <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} placeholder="••••••••" />
                       </div>
-                      <button type="submit" className={btnClass}>Sign In</button>
+                      <button type="submit" disabled={isLoading} className={btnClass}>
+                        {isLoading ? 'Signing In...' : 'Sign In'}
+                      </button>
                       <div className="mt-auto text-center pt-4">
                         <p className="text-sm text-gray-500">Don't have an account?{' '}<button type="button" onClick={() => toggleAuthMode(false)} className="font-bold text-[#D4AF37] hover:text-[#b8952d] transition-colors">Register here</button></p>
                       </div>
