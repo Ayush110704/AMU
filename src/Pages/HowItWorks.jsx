@@ -1,5 +1,4 @@
 import React from 'react';
-import './HowItWorks.css'
 
 const HowItWorks = () => {
   // Data for the steps to keep the JSX clean
@@ -93,7 +92,7 @@ const HowItWorks = () => {
         </div>
 
         {/* Steps Timeline (Right) */}
-        <div className="how-it-works__steps relative flex w-full flex-col items-stretch justify-between gap-4 md:flex-row md:items-start md:gap-3 lg:w-[73%]" role="list" aria-label="Complaint resolution steps">
+        <div className="how-it-works__steps relative flex w-full flex-col items-stretch justify-between gap-3 md:flex-row md:items-start md:gap-3 lg:w-[73%]" role="list" aria-label="Complaint resolution steps">
           
           {steps.map((step, index) => (
             <div key={step.num} className="how-it-works__step group relative flex w-full flex-1 flex-col items-center md:min-w-0" role="listitem">
@@ -111,17 +110,17 @@ const HowItWorks = () => {
               )}
 
               {/* Step Content Wrapper */}
-              <div className="how-it-works__content relative z-10 flex w-full flex-col items-center px-4 py-5 text-center sm:px-5 md:min-h-[182px] md:px-3 md:py-5">
+              <div className="relative z-10 flex w-full flex-col items-center rounded-[1.2rem] border border-[rgba(29,58,42,0.09)] bg-[linear-gradient(150deg,#fff,#fbfcfa)] px-4 py-5 text-center shadow-[0_3px_8px_rgba(25,48,35,0.035),0_12px_28px_rgba(25,48,35,0.055),0_1px_0_#fff_inset] transition-[transform,border-color,box-shadow] duration-[220ms] ease-[ease] group-hover:-translate-y-[3px] group-hover:border-[rgba(0,107,63,0.2)] group-hover:shadow-[0_5px_12px_rgba(25,48,35,0.04),0_17px_32px_rgba(25,48,35,0.075),0_1px_0_#fff_inset] motion-reduce:transition-none motion-reduce:group-hover:transform-none sm:px-5 md:min-h-[182px] md:px-3 md:py-5">
                 
                 {/* Icons & Numbers Row */}
                 <div className="mb-4 flex items-center gap-3">
                   {/* Number Badge */}
-                  <div className={`how-it-works__number flex h-8 w-8 items-center justify-center rounded-full ${step.numColor} text-sm font-bold ${step.num === '2' ? 'text-[#292929]' : 'text-white'} shadow-sm transition-transform duration-300 group-hover:scale-105`} aria-hidden="true">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step.numColor} text-sm font-bold ${step.num === '2' ? 'text-[#292929]' : 'text-white'} shadow-[0_3px_8px_rgba(0,77,45,0.15),0_1px_0_rgba(255,255,255,0.24)_inset] transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100`} aria-hidden="true">
                     {step.num}
                   </div>
                   
                   {/* Icon Circle */}
-                  <div className={`how-it-works__icon flex h-12 w-12 items-center justify-center rounded-full border-4 border-white ${step.iconBg} shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5`} aria-hidden="true">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full border-4 border-white ${step.iconBg} shadow-[0_4px_10px_rgba(25,48,35,0.09),0_1px_0_#fff_inset] transition-transform duration-300 group-hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0`} aria-hidden="true">
                     <div className={step.iconColor}>
                       {step.icon}
                     </div>
