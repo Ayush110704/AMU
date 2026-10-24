@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react' 
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import abdulBasidBanner from '../assets/abdulbasidbanner.png' 
+import athenuraBanner from '../assets/Banner3.jpeg'
 
 const banners = [
   {
@@ -11,28 +12,34 @@ const banners = [
     ctaText: 'Report an Issue',
     badge: 'Student Election Portal'
   },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1600&h=600',
-    title: 'Meet Your Representatives',
-    subtitle: 'See who is working hard to address student concerns on campus.',
-    ctaText: 'View Representatives',
-    badge: 'Student Election Portal'
-  },
+  // {
+  //   id: 2,
+  //   image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1600&h=600',
+  //   title: 'Meet Your Representatives',
+  //   subtitle: 'See who is working hard to address student concerns on campus.',
+  //   ctaText: 'View Representatives',
+  //   badge: 'Student Election Portal'
+  // },
   {
     id: 3,
-    image: abdulBasidBanner, 
+    image: abdulBasidBanner,
     title: 'Abdul Basid Campaign Banner',
-    customLayout: true  
+    customLayout: true
+  },
+  {
+    id: 4,
+    image: athenuraBanner,
+    title: 'Designed and Developed by Athenura',
+    customLayout: true
   },
 ]
- 
+
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,  
+      staggerChildren: 0.15,
       delayChildren: 0.2,
     }
   }
@@ -40,9 +47,9 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30, filter: 'blur(5px)' },
-  show: { 
-    opacity: 1, 
-    y: 0, 
+  show: {
+    opacity: 1,
+    y: 0,
     filter: 'blur(0px)',
     transition: { type: 'spring', stiffness: 300, damping: 24 }
   }
@@ -50,9 +57,9 @@ const itemVariants = {
 
 const titleWordVariants = {
   hidden: { opacity: 0, y: 40, rotateX: -20 },
-  show: { 
-    opacity: 1, 
-    y: 0, 
+  show: {
+    opacity: 1,
+    y: 0,
     rotateX: 0,
     transition: { type: 'spring', stiffness: 200, damping: 20 }
   }
@@ -84,7 +91,7 @@ function HeroBannerCarousel() {
   return (
     <section className="mx-auto w-full max-w-[1400px] px-3 pb-4 pt-5 sm:px-4 sm:pt-6" aria-label="Campus highlights">
       <div
-        className="group relative h-[430px] w-full overflow-hidden rounded-[1.5rem] bg-[#004D2D] shadow-[0_18px_45px_rgba(0,45,27,0.2)] sm:h-[470px] sm:rounded-[1.75rem] lg:h-[520px]"
+        className="group relative h-[460px] w-full overflow-hidden rounded-[1.5rem] bg-[#004D2D] shadow-[0_18px_45px_rgba(0,45,27,0.2)] sm:h-[500px] sm:rounded-[1.75rem] lg:h-[600px]"
         role="region"
         aria-roledescription="carousel"
         aria-label="AMU campus highlights"
@@ -102,10 +109,11 @@ function HeroBannerCarousel() {
               aria-hidden={!isActive}
               inert={!isActive}
             >
+              {/* Using object-fill for custom banners to stretch edge-to-edge perfectly */}
               <img
                 src={banner.image}
                 alt={banner.title}
-                className="h-full w-full object-cover object-center"
+                className={`h-full w-full ${banner.customLayout ? 'object-fill' : 'object-cover object-center'}`}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
               />
               
@@ -115,11 +123,25 @@ function HeroBannerCarousel() {
                 
                 {banner.customLayout ? (
                   <div className="relative h-full w-full">
-                    <a 
-                      href="/profile/abdul-basid" 
-                      aria-label="View Abdul Basid's profile for Court Membership"
-                      className="absolute left-0 top-[30%] sm:top-[35%] h-12 w-[180px] sm:w-[220px] rounded-sm transition-colors hover:bg-white/10"
-                    ></a>
+                     
+                    {banner.id === 3 && (
+                      <a 
+                        href="/profile/abdul-basid" 
+                        aria-label="View Abdul Basid's profile for Court Membership"
+                        className="absolute left-[6%] top-[31%] h-[7%] w-[38%] max-w-[280px] cursor-pointer rounded-md transition-colors hover:bg-white/10"
+                      ></a>
+                    )}
+
+                    {banner.id === 4 && (
+                      <a 
+                        href="https://athenura.com" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Visit Athenura's website"
+                        className="absolute left-[6%] top-[76%] h-[10%] w-[35%] max-w-[400px] cursor-pointer rounded-full transition-colors hover:bg-white/10"
+                      ></a>
+                    )}
+
                   </div>
                 ) : (
                    
@@ -160,7 +182,6 @@ function HeroBannerCarousel() {
                       {banner.ctaText === 'Report an Issue' ? (
                         <a href="#report-issue" className="group/btn relative overflow-hidden inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-[#F5F5F0] hover:shadow-[0_8px_0_rgba(0,0,0,0.15),0_15px_30px_rgba(0,0,0,0.25)] active:translate-y-0 active:scale-100 sm:px-7 sm:text-[15px]">
                           
-                          {/* Shine Effect */}
                           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]" />
                           
                           <span className="relative z-10">{banner.ctaText}</span>
@@ -169,7 +190,6 @@ function HeroBannerCarousel() {
                       ) : (
                         <a href="/representatives" className="group/btn relative overflow-hidden inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-white hover:shadow-[0_8px_0_rgba(0,0,0,0.15),0_15px_30px_rgba(0,0,0,0.25)] active:translate-y-0 active:scale-100 sm:px-7 sm:text-[15px]">
                           
-                          {/* Shine Effect */}
                           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#006B3F]/10 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]" />
                           
                           <span className="relative z-10">{banner.ctaText}</span>
