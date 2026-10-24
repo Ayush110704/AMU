@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react' 
+import abdulBasidBanner from '../assets/abdulbasidbanner.png' 
 
 const banners = [
   {
@@ -7,6 +8,7 @@ const banners = [
     title: 'Your Campus, Your Voice',
     subtitle: 'Report issues, share suggestions, and help build a better AMU.',
     ctaText: 'Report an Issue',
+    badge: 'Student Election Portal'
   },
   {
     id: 2,
@@ -14,6 +16,13 @@ const banners = [
     title: 'Meet Your Representatives',
     subtitle: 'See who is working hard to address student concerns on campus.',
     ctaText: 'View Representatives',
+    badge: 'Student Election Portal'
+  },
+  {
+    id: 3,
+    image: abdulBasidBanner, 
+    title: 'Abdul Basid Campaign Banner',
+    customLayout: true  
   },
 ]
 
@@ -67,31 +76,52 @@ function HeroBannerCarousel() {
                 className="h-full w-full object-cover object-center"
                 fetchPriority={index === 0 ? 'high' : 'auto'}
               />
-              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/15" />
+              
+              {/* Gradient overlay - lighter/none for the custom poster */}
+              <div aria-hidden="true" className={`absolute inset-0 bg-gradient-to-r ${banner.customLayout ? 'from-transparent via-transparent to-transparent' : 'from-black/75 via-black/45 to-black/15'}`} />
 
               <div className="absolute inset-0 z-10 flex flex-col items-start justify-center px-6 pb-8 sm:px-10 md:px-14 lg:px-20">
-                <div className="max-w-2xl">
-                  <span className="mb-5 inline-flex rounded-full border border-[#D4AF37]/60 bg-[#D4AF37] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#292929] shadow-sm sm:text-xs">
-                    Student Election Portal
-                  </span>
-                  <h1 className="mb-4 max-w-[15ch] text-[clamp(2.25rem,7.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.25)]">
-                    {banner.title}
-                  </h1>
-                  <p className="mb-7 max-w-lg text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)] sm:mb-8 sm:text-lg md:text-xl">
-                    {banner.subtitle}
-                  </p>
-                  {banner.ctaText === 'Report an Issue' ? (
-                    <a href="#report-issue" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#F5F5F0] active:translate-y-0 sm:px-7 sm:text-[15px]">
-                      {banner.ctaText}
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                    </a>
-                  ) : (
-                    <a href="/representatives" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0 sm:px-7 sm:text-[15px]">
-                      {banner.ctaText}
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                    </a>
-                  )}
-                </div>
+                
+                {/* CUSTOM LAYOUT FOR ABDUL BASID BANNER */}
+                {banner.customLayout ? (
+                  <div className="relative h-full w-full">
+                    {/* 
+                      Because the text is already in your image, we don't add text here. 
+                      Instead, we place an invisible link exactly over the "For Court Membership" button 
+                      in the image so it acts as a clickable CTA.
+                    */}
+                    <a 
+                      href="/profile/abdul-basid" 
+                      aria-label="View Abdul Basid's profile for Court Membership"
+                      className="absolute left-0 top-[30%] sm:top-[35%] h-12 w-[180px] sm:w-[220px] rounded-sm transition-colors hover:bg-white/10"
+                    ></a>
+                  </div>
+                ) : (
+                  
+                /* DEFAULT LAYOUT FOR OTHER BANNERS */
+                  <div className="max-w-2xl">
+                    <span className="mb-5 inline-flex rounded-full border border-[#D4AF37]/60 bg-[#D4AF37] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#292929] shadow-sm sm:text-xs">
+                      {banner.badge}
+                    </span>
+                    <h1 className="mb-4 max-w-[15ch] text-[clamp(2.25rem,7.5vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.25)]">
+                      {banner.title}
+                    </h1>
+                    <p className="mb-7 max-w-lg text-base font-medium leading-relaxed text-white/95 [text-shadow:0_1px_8px_rgba(0,0,0,0.3)] sm:mb-8 sm:text-lg md:text-xl">
+                      {banner.subtitle}
+                    </p>
+                    {banner.ctaText === 'Report an Issue' ? (
+                      <a href="#report-issue" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/70 bg-white px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-[#F5F5F0] active:translate-y-0 sm:px-7 sm:text-[15px]">
+                        {banner.ctaText}
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                      </a>
+                    ) : (
+                      <a href="/representatives" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/75 bg-white/95 px-6 py-3 text-sm font-bold text-[#006B3F] shadow-[0_5px_0_rgba(0,0,0,0.15),0_12px_26px_rgba(0,0,0,0.18)] no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-white active:translate-y-0 sm:px-7 sm:text-[15px]">
+                        {banner.ctaText}
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )
