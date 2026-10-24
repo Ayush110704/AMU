@@ -19,7 +19,6 @@ const banners = [
 
 function HeroBannerCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {
@@ -31,12 +30,12 @@ function HeroBannerCarousel() {
   }, [])
 
   useEffect(() => {
-    if (isPaused || prefersReducedMotion) return undefined
+    if (prefersReducedMotion) return undefined
     const timer = window.setInterval(() => {
       setCurrentSlide((current) => (current + 1) % banners.length)
     }, 5000)
     return () => window.clearInterval(timer)
-  }, [isPaused, prefersReducedMotion])
+  }, [prefersReducedMotion])
 
   const nextSlide = () => setCurrentSlide((current) => (current + 1) % banners.length)
   const prevSlide = () => setCurrentSlide((current) => (current - 1 + banners.length) % banners.length)
@@ -48,7 +47,7 @@ function HeroBannerCarousel() {
         role="region"
         aria-roledescription="carousel"
         aria-label="AMU campus highlights"
-        aria-live={isPaused || prefersReducedMotion ? 'polite' : 'off'}
+        aria-live={prefersReducedMotion ? 'polite' : 'off'}
       >
         {banners.map((banner, index) => {
           const isActive = index === currentSlide
@@ -127,15 +126,6 @@ function HeroBannerCarousel() {
             />
           ))}
         </div>
-
-        {!prefersReducedMotion && <button
-          type="button"
-          onClick={() => setIsPaused((paused) => !paused)}
-          aria-label={isPaused ? 'Play carousel' : 'Pause carousel'}
-          className="absolute bottom-4 right-3 z-20 flex min-h-10 items-center justify-center rounded-full border border-white/30 bg-black/30 px-3 text-xs font-semibold text-white shadow-lg backdrop-blur-md transition hover:bg-black/50 sm:bottom-5 sm:right-5 sm:min-h-11 sm:px-4"
-        >
-          {isPaused ? 'Play' : 'Pause'}
-        </button>}
       </div>
     </section>
   )
