@@ -20,7 +20,7 @@ function Gallery() {
 
   return (
     <section className="campus-showcase relative mx-auto flex w-full max-w-7xl flex-col items-center gap-10 overflow-hidden px-4 py-14 sm:gap-12 sm:py-16 lg:flex-row lg:justify-between lg:gap-8 lg:py-20" aria-labelledby="campus-showcase-heading">
-      <div className="campus-showcase__intro z-10 flex w-full min-w-0 flex-col items-start lg:w-[44%]">
+      <div className="z-10 flex w-full min-w-0 flex-col items-start [perspective:1200px] lg:w-[44%]">
         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#006B3F]/10 bg-[#E6F2EC] px-4 py-2">
           <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" aria-hidden="true" />
           <span className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#006B3F] sm:text-[11px]">
@@ -65,29 +65,29 @@ function Gallery() {
         </div>
       </div>
 
-      <div className="campus-showcase__visual relative h-[340px] w-full min-w-0 overflow-hidden rounded-[1.6rem] border border-white/70 bg-[#EDF1EC] shadow-[0_18px_42px_rgba(25,48,35,0.13)] sm:h-[390px] lg:h-[450px] lg:w-[52%]" role="group" aria-label="Campus photo carousel">
-        <div className="campus-showcase__wash campus-showcase__wash--left" aria-hidden="true" />
-        <div className="campus-showcase__wash campus-showcase__wash--right" aria-hidden="true" />
+      <div className="relative isolate h-[340px] w-full min-w-0 overflow-hidden rounded-[1.6rem] border border-white/70 bg-[#EDF1EC] shadow-[0_18px_42px_rgba(25,48,35,0.13)] [perspective:1200px] sm:h-[390px] lg:h-[450px] lg:w-[52%]" role="group" aria-label="Campus photo carousel">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-[linear-gradient(90deg,rgba(237,241,236,0.95),transparent)] max-sm:w-5" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-[linear-gradient(270deg,rgba(237,241,236,0.95),transparent)] max-sm:w-5" aria-hidden="true" />
         <button
           type="button"
-          className="campus-showcase__motion-control absolute right-3 top-3 z-30 inline-flex min-h-10 items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3.5 text-xs font-semibold text-[#004D2D] shadow-md backdrop-blur-sm transition hover:bg-white sm:right-4 sm:top-4 sm:px-4"
+          className="campus-showcase__motion-control absolute right-3 top-3 z-30 inline-flex min-h-10 items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3.5 text-xs font-semibold text-[#004D2D] shadow-md backdrop-blur-sm transition hover:bg-white focus-visible:outline-[#006b3f] motion-reduce:hidden sm:right-4 sm:top-4 sm:px-4"
           onClick={() => setMotionPaused((paused) => !paused)}
           aria-pressed={motionPaused}
           aria-controls="campus-showcase-images"
         >
-          <span className="campus-showcase__motion-icon" aria-hidden="true">{motionPaused ? '▶' : 'Ⅱ'}</span>
+          <span className="text-[.85rem] leading-none text-[#006b3f]" aria-hidden="true">{motionPaused ? '▶' : 'Ⅱ'}</span>
           {motionPaused ? 'Resume motion' : 'Pause motion'}
         </button>
 
-        <div id="campus-showcase-images" className={`campus-showcase__tracks flex h-full flex-col justify-center gap-3 sm:gap-4 ${motionPaused ? 'campus-showcase__tracks--paused' : ''}`}>
-          <div className="campus-showcase__track campus-showcase__track--forward flex w-max">
+        <div id="campus-showcase-images" className="campus-showcase__tracks flex h-full flex-col justify-center gap-3 sm:gap-4">
+          <div className={`campus-showcase__track flex w-max animate-[campus-marquee-forward_38s_linear_infinite] hover:[animation-play-state:paused] ${motionPaused ? '[animation-play-state:paused]' : ''}`}>
             {[...carouselImagesTop, ...carouselImagesTop].map((image, index) => (
               <div key={`top-${index}`} className="campus-showcase__photo h-[145px] w-[250px] shrink-0 px-2 sm:h-[170px] sm:w-[290px] lg:h-[200px] lg:w-[320px]">
                 <img src={image} alt={index < carouselImagesTop.length ? 'University campus and student life' : ''} aria-hidden={index >= carouselImagesTop.length} loading="lazy" className="h-full w-full rounded-[1.15rem] object-cover shadow-[0_8px_20px_rgba(20,45,31,0.18)] transition-transform duration-300 hover:scale-[1.025]" />
               </div>
             ))}
           </div>
-          <div className="campus-showcase__track campus-showcase__track--reverse flex w-max">
+          <div className={`campus-showcase__track flex w-max animate-[campus-marquee-reverse_42s_linear_infinite] hover:[animation-play-state:paused] ${motionPaused ? '[animation-play-state:paused]' : ''}`}>
             {[...carouselImagesBottom, ...carouselImagesBottom].map((image, index) => (
               <div key={`bottom-${index}`} className="campus-showcase__photo h-[145px] w-[250px] shrink-0 px-2 sm:h-[170px] sm:w-[290px] lg:h-[200px] lg:w-[320px]">
                 <img src={image} alt={index < carouselImagesBottom.length ? 'Campus architecture and grounds' : ''} aria-hidden={index >= carouselImagesBottom.length} loading="lazy" className="h-full w-full rounded-[1.15rem] object-cover shadow-[0_8px_20px_rgba(20,45,31,0.18)] transition-transform duration-300 hover:scale-[1.025]" />
