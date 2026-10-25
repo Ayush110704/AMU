@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ComplaintModal from './ComplaintModal'; 
 // Import the Logo from assets
 import AmuLogo from '../assets/AmuLogo.png'; 
-
-// Expanded Dummy Data matching the Form fields
+ 
 const initialComplaints = [
   { 
     id: 'CMP-1042', 
