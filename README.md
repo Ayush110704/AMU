@@ -1,16 +1,28 @@
-# React + Vite
+# AMU
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This repository is organized into separate application areas:
 
-Currently, two official plugins are available:
+- `frontend/` contains the React and Vite application.
+- `backend/` contains the Express API, MongoDB complaint model, and private local evidence storage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run the frontend
 
-## React Compiler
+```sh
+cd frontend
+npm ci
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run the backend
 
-## Expanding the Oxlint configuration
+Use Node.js 20.19+ and MongoDB. Start a local MongoDB instance or create a MongoDB Atlas database, then configure the backend:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+cd backend
+npm ci
+cp .env.example .env
+# Set MONGODB_URI in .env to your MongoDB connection string.
+npm run dev
+```
+
+The frontend proxies `/api` requests to `http://localhost:4000`. Complaint evidence is stored under `backend/uploads/` and is not served publicly.

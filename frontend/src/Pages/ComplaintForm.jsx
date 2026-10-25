@@ -20,6 +20,7 @@ function ComplaintForm() {
   const [files, setFiles] = useState([])
   const [fileError, setFileError] = useState('')
   const [submitMessage, setSubmitMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef(null)
 
@@ -44,7 +45,7 @@ function ComplaintForm() {
     })
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     setSubmitMessage('')
     const data = new FormData(event.currentTarget)
@@ -55,8 +56,21 @@ function ComplaintForm() {
       event.currentTarget.elements.mobile.setCustomValidity('')
       return
     }
-    // No complaint API is configured in this project, so do not claim persistence.
-    setSubmitMessage('Your details are valid, but complaint submission is not connected yet. Please contact the university through its official channels.')
+    const payload = new FormData(event.currentTarget)
+    files.forEach((file) => payload.append('attachments', file))
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/complaints', { method: 'POST', body: payload })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || 'The complaint could not be submitted.')
+      setSubmitMessage(`Your complaint was received. Reference number: ${result.complaintNumber}.`)
+      event.currentTarget.reset()
+      setFiles([])
+    } catch (error) {
+      setSubmitMessage(error.message || 'The complaint could not be submitted. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const fieldClass = 'mt-2 min-h-[3.05rem] w-full rounded-[.82rem] border border-[#dce2dc] bg-[#fbfcfa] px-[.95rem] py-[.8rem] text-sm text-[#292929] shadow-[inset_0_1px_2px_rgba(24,46,34,0.025)] outline-none transition-[border-color,box-shadow,background-color,transform] duration-[180ms] placeholder:text-[#929b94] placeholder:opacity-100 hover:border-[#b6c9bb] hover:bg-white focus:border-[#16815a] focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,107,63,0.105),0_3px_10px_rgba(0,77,45,0.055)] focus:outline-none'
@@ -134,8 +148,8 @@ function ComplaintForm() {
 
           {submitMessage && <p role="status" className="rounded-[.85rem] border border-[#E4D79F] border-l-4 border-l-[var(--color-accent-strong)] bg-[#FBF7E8] px-4 py-3 text-sm leading-6 text-[#665216] shadow-[0_3px_12px_rgba(156,121,18,0.06)]">{submitMessage}</p>}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <p className="text-xs leading-5 text-[#626B65]">Fields marked * are required. Your information is not sent until a submission service is connected.</p>
-            <button type="submit" className={submitClass}>Submit Complaint <span aria-hidden="true">→</span></button>
+            <p className="text-xs leading-5 text-[#626B65]">Fields marked * are required. Your information is sent to the complaint service when you submit.</p>
+            <button type="submit" className={submitClass} disabled={isSubmitting}>{isSubmitting ? 'Submitting…' : 'Submit Complaint'} <span aria-hidden="true">→</span></button>
           </div>
         </form>
       </div>
