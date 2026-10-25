@@ -13,9 +13,8 @@ function text(value) {
 }
 
 function validateComplaint(body, files) {
-  const required = ['name', 'studentId', 'email', 'mobile', 'department', 'title', 'category', 'location', 'description']
-  const missing = required.filter((key) => !text(body[key]))
-  if (missing.length) return `Required fields are missing: ${missing.join(', ')}.`
+  const hasComplaintDetails = ['title', 'category', 'location', 'description'].some((key) => text(body[key]))
+  if (!hasComplaintDetails) return 'Share at least one complaint detail before submitting.'
 
   const limits = {
     name: 100, studentId: 50, rollNumber: 50, email: 254, department: 120,
@@ -23,14 +22,13 @@ function validateComplaint(body, files) {
   }
   const tooLong = Object.entries(limits).find(([key, max]) => text(body[key]).length > max)
   if (tooLong) return `${tooLong[0]} must be ${tooLong[1]} characters or fewer.`
-  if (!emailPattern.test(text(body.email))) return 'Enter a valid email address.'
+  if (text(body.email) && !emailPattern.test(text(body.email))) return 'Enter a valid email address.'
   const digits = text(body.mobile).match(/\d/g) || []
-  if (!mobilePattern.test(text(body.mobile)) || digits.length < 7 || digits.length > 15) {
+  if (text(body.mobile) && (!mobilePattern.test(text(body.mobile)) || digits.length < 7 || digits.length > 15)) {
     return 'Enter a valid mobile number.'
   }
-  if (!complaintCategories.includes(text(body.category))) return 'Select a valid complaint category.'
-  if (text(body.declaration).toLowerCase() !== 'on' && text(body.declaration).toLowerCase() !== 'true') {
-    return 'Confirm the declaration before submitting.'
+  if (text(body.category) && !complaintCategories.includes(text(body.category))) {
+    return 'Select a valid complaint category.'
   }
   if (body.incidentDate) {
     const date = new Date(body.incidentDate)

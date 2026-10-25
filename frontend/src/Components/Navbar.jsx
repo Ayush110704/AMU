@@ -38,8 +38,8 @@ function Navbar() {
             <img src={AmuLogo} alt="AMU Logo" className="h-full w-full object-contain" />
           </span>
           <span className="flex min-w-0 flex-col justify-center">
-            <span className="text-[14px] font-bold leading-tight tracking-[-0.02em] text-[#292929] sm:text-base">Aligarh Muslim University</span>
-            <span className="mt-0.5 text-xs font-medium text-[#626B65] sm:text-[13px]">Student Election Portal</span>
+            <span className="text-[14px] font-bold leading-tight tracking-[-0.02em] text-[#292929] sm:text-base">Abdul Basid court member</span>
+            {/* <span className="mt-0.5 text-xs font-medium text-[#626B65] sm:text-[13px]">Student Election Portal</span> */}
           </span>
         </a>
 
