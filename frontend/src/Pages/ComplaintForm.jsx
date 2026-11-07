@@ -220,7 +220,9 @@ function ComplaintForm() {
       const response = await fetch('/api/complaints', { method: 'POST', body: payload })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'The complaint could not be submitted.')
-      setSubmitMessage(`Your complaint was received. Reference number: ${result.complaintNumber}.`)
+      setSubmitMessage(result.notificationSent === false
+        ? `Your complaint was saved with reference number ${result.complaintNumber}, but the admin email could not be sent. Please contact the administrator.`
+        : `Your complaint was received. Reference number: ${result.complaintNumber}.`)
     } catch (error) {
       setSubmitMessage(error.message || 'The complaint could not be submitted. Please try again.')
     } finally {

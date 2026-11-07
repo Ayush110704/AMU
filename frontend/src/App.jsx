@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom'
 import Navbar from './Components/Navbar'
 import DualCarousels from './Components/DualCarousels'
 import IssueCategories from './Pages/IssueCategories'
@@ -11,6 +11,16 @@ import ComplaintForm from './Pages/ComplaintForm'
 // Admin Imports
 import AdminAuth from './Admin/AdminAuth'  
 import AdminDashboard from './Admin/AdminDashboard'
+import { getAdminToken } from './Admin/authSession'
+
+function AdminDashboardRoute() {
+  const token = getAdminToken()
+  if (!token) {
+    return <Navigate to="/admin" replace />
+  }
+
+  return <AdminDashboard />
+}
 
 // The main homepage layout
 function HomePage() {
@@ -37,7 +47,7 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminAuth />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardRoute />} />
       </Routes>
     </Router>
   )

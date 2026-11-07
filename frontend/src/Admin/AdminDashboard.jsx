@@ -1,80 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ComplaintModal from './ComplaintModal'; 
-// Import the Logo from assets
 import AmuLogo from '../assets/AmuLogo.png'; 
+import { clearAdminToken, getAdminToken, getAuthHeaders } from './authSession';
 
-// Expanded Dummy Data matching the Form fields
-const initialComplaints = [
-  { 
-    id: 'CMP-1042', 
-    name: 'Rahul Sharma', 
-    studentId: 'AMU2026001',
-    rollNumber: '22BSC001',
-    email: 'rahul@amu.ac.in',
-    mobile: '+91 98765 43210',
-    department: 'Computer Science',
-    course: 'BSc, Year 2',
-    residence: 'SRK Hostel',
-    title: 'Water cooler not working',
-    category: 'Hostel and Campus Facilities', 
-    location: 'SRK Hostel, Block B',
-    incidentDate: '2024-05-18',
-    description: 'The water cooler in Block B has been out of order for 3 days. Students are facing difficulty, especially during the afternoon heat.', 
-    resolution: 'Repair the cooler or provide an alternative water dispenser immediately.',
-    date: '2024-05-18', 
-    status: 'Pending', 
-    adminRemarks: '' 
-  },
-  { 
-    id: 'CMP-1043', 
-    name: 'Aisha Khan', 
-    studentId: 'AMU2026045',
-    rollNumber: '21BA002',
-    email: 'aisha@amu.ac.in',
-    mobile: '+91 87654 32109',
-    department: 'Arts',
-    course: 'BA, Year 3',
-    residence: ' Abdullah Hall',
-    title: 'Missing marks for internal assessment',
-    category: 'Academic Facilities', 
-    location: 'Arts Faculty, Room 4',
-    incidentDate: '2024-05-15',
-    description: 'My marks for Semester 4 Internal Assessment are showing as absent on the portal, even though I attended all classes and submitted all assignments.', 
-    resolution: 'Update the portal with correct marks.',
-    date: '2024-05-18', 
-    status: 'In Progress', 
-    adminRemarks: 'Checking with the department.' 
-  },
-  { 
-    id: 'CMP-1044', 
-    name: 'Vikram Singh', 
-    studentId: 'AMU2026012',
-    rollNumber: '23BCOM010',
-    email: 'vikram@amu.ac.in',
-    mobile: '+91 76543 21098',
-    department: 'Commerce',
-    course: 'BCom, Year 1',
-    residence: 'Day Scholar',
-    title: 'Broken bench near library',
-    category: 'Infrastructure and Maintenance', 
-    location: 'Arts Faculty Library Lawn',
-    incidentDate: '2024-05-16',
-    description: 'The wooden bench near the library entrance is broken and has exposed nails. It is a safety hazard.', 
-    resolution: 'Repair or replace the bench.',
-    date: '2024-05-17', 
-    status: 'Resolved', 
-    adminRemarks: 'Maintenance team fixed it.' 
+function normalizeComplaint(complaint) {
+  return {
+    ...complaint,
+    id: complaint.complaintNumber || complaint._id,
+    date: complaint.createdAt ? new Date(complaint.createdAt).toISOString().slice(0, 10) : '',
+    status: complaint.status || 'Pending',
+    adminRemarks: complaint.adminRemarks || '',
+    title: complaint.title || complaint.description || 'Untitled complaint',
   }
-];
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   
-  const [complaints, setComplaints] = useState(initialComplaints);
+  const [complaints, setComplaints] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadComplaints() {
+      try {
+        const token = getAdminToken()
+        if (!token) {
+          navigate('/admin')
+          return
+        }
+
+        setLoading(true)
+        setError('')
+
+        const response = await fetch('/api/admin/complaints', {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        })
+
+        if (response.status === 401) {
+          clearAdminToken()
+          navigate('/admin')
+          return
+        }
+
+        if (!response.ok) {
+          const errorPayload = await response.json().catch(() => ({}))
+          throw new Error(errorPayload.error || 'Failed to load complaints')
+        }
+
+        const data = await response.json()
+        const normalized = (data.complaints || []).map(normalizeComplaint)
+        setComplaints(normalized)
+      } catch (loadError) {
+        console.error(loadError)
+        setError('Could not load complaints from the backend.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadComplaints()
+  }, [navigate])
 
   // Filter complaints
   const filteredComplaints = activeTab === 'All' 
@@ -82,11 +74,47 @@ export default function AdminDashboard() {
     : complaints.filter(c => c.status === activeTab);
 
   // Handle status & remarks update from Modal
-  const handleUpdateStatus = (id, newStatus, remarks) => {
-    setComplaints(complaints.map(c => 
-      c.id === id ? { ...c, status: newStatus, adminRemarks: remarks } : c
-    ));
+  const handleUpdateStatus = async (id, newStatus, remarks) => {
+    try {
+      const recordId = id || ''
+      const response = await fetch(`/api/admin/complaints/${encodeURIComponent(recordId)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ status: newStatus, adminRemarks: remarks }),
+      })
+
+      if (response.status === 401) {
+        clearAdminToken()
+        navigate('/admin')
+        return
+      }
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}))
+        throw new Error(errorPayload.error || 'Status update failed')
+      }
+
+      const data = await response.json()
+      const updatedComplaint = normalizeComplaint(data.complaint)
+
+      setComplaints((currentComplaints) => currentComplaints.map((complaint) =>
+        (complaint.id === id || complaint._id === id) ? updatedComplaint : complaint,
+      ))
+      setSelectedComplaint((currentComplaint) =>
+        currentComplaint && (getComplaintRecordId(currentComplaint) === id)
+          ? updatedComplaint
+          : currentComplaint,
+      )
+    } catch (updateError) {
+      console.error(updateError)
+      setError(updateError.message || 'Could not update the complaint status.')
+    }
   };
+
+  const getComplaintRecordId = (complaint) => complaint?._id || complaint?.id || complaint?.complaintNumber || ''
 
   // Status Badge Helper
   const getStatusColor = (status) => {
@@ -118,7 +146,10 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-white/80 hidden sm:block">Welcome, Admin</span>
           <button 
-            onClick={() => navigate('/admin')}
+            onClick={() => {
+              clearAdminToken()
+              navigate('/admin')
+            }}
             className="bg-[#D4AF37] hover:bg-[#c49f2c] text-[#292929] px-4 py-2 rounded-lg text-sm font-bold transition-colors"
           >
             Logout
@@ -130,6 +161,12 @@ export default function AdminDashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         
         {/* Analytics Cards */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Complaints', value: complaints.length, color: 'bg-white', iconColor: 'text-gray-400 bg-gray-50', icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> },
@@ -172,44 +209,50 @@ export default function AdminDashboard() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
-                  <th className="p-4 font-semibold">ID</th>
-                  <th className="p-4 font-semibold">Student</th>
-                  <th className="p-4 font-semibold">Category</th>
-                  <th className="p-4 font-semibold">Description</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredComplaints.map((complaint) => (
-                  <tr 
-                    key={complaint.id} 
-                    className="hover:bg-gray-50 transition-colors cursor-pointer group"
-                    onClick={() => setSelectedComplaint(complaint)}
-                  >
-                    <td className="p-4 text-sm font-bold text-[#004D2D] whitespace-nowrap group-hover:text-[#006B3F] transition-colors">{complaint.id}</td>
-                    <td className="p-4 text-sm text-gray-700 font-medium whitespace-nowrap">{complaint.name}</td>
-                    <td className="p-4 text-sm text-gray-600 whitespace-nowrap">
-                      <span className="bg-gray-100 px-2 py-1 rounded-md text-xs font-semibold">{complaint.category}</span>
-                    </td>
-                    <td className="p-4 text-sm text-gray-500 min-w-[200px] max-w-xs truncate">{complaint.title}</td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${getStatusColor(complaint.status)}`}>
-                        {complaint.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right whitespace-nowrap">
-                      <button className="text-xs font-bold text-[#006B3F] border border-[#006B3F]/20 bg-[#E6F2EC] px-3 py-1.5 rounded-lg hover:bg-[#d1e8db] transition-colors">
-                        View Details
-                      </button>
-                    </td>
+            {loading ? (
+              <div className="p-8 text-center text-sm text-gray-500">Loading complaints...</div>
+            ) : filteredComplaints.length === 0 ? (
+              <div className="p-10 text-center text-sm text-gray-500">No complaints found.</div>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
+                    <th className="p-4 font-semibold">ID</th>
+                    <th className="p-4 font-semibold">Student</th>
+                    <th className="p-4 font-semibold">Category</th>
+                    <th className="p-4 font-semibold">Description</th>
+                    <th className="p-4 font-semibold">Status</th>
+                    <th className="p-4 font-semibold text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredComplaints.map((complaint) => (
+                    <tr 
+                      key={complaint.id || complaint._id} 
+                      className="hover:bg-gray-50 transition-colors cursor-pointer group"
+                      onClick={() => setSelectedComplaint(complaint)}
+                    >
+                      <td className="p-4 text-sm font-bold text-[#004D2D] whitespace-nowrap group-hover:text-[#006B3F] transition-colors">{complaint.id}</td>
+                      <td className="p-4 text-sm text-gray-700 font-medium whitespace-nowrap">{complaint.name}</td>
+                      <td className="p-4 text-sm text-gray-600 whitespace-nowrap">
+                        <span className="bg-gray-100 px-2 py-1 rounded-md text-xs font-semibold">{complaint.category}</span>
+                      </td>
+                      <td className="p-4 text-sm text-gray-500 min-w-[200px] max-w-xs truncate">{complaint.title}</td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${getStatusColor(complaint.status)}`}>
+                          {complaint.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right whitespace-nowrap">
+                        <button className="text-xs font-bold text-[#006B3F] border border-[#006B3F]/20 bg-[#E6F2EC] px-3 py-1.5 rounded-lg hover:bg-[#d1e8db] transition-colors">
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
           
           <div className="p-4 border-t border-gray-200 flex items-center justify-end text-sm text-gray-500">

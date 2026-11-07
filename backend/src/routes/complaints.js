@@ -1,7 +1,17 @@
 import crypto from 'node:crypto'
 import express from 'express'
-import { removeUploadedFiles, upload } from '../middleware/upload.js'
+import { v2 as cloudinary } from 'cloudinary'
+import { config } from '../config.js'
+import { upload } from '../middleware/upload.js'
 import Complaint, { complaintCategories } from '../models/Complaint.js'
+import { sendComplaintNotification } from '../services/email.js'
+
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudName,
+  api_key: config.cloudinary.apiKey,
+  api_secret: config.cloudinary.apiSecret,
+  secure: true,
+})
 
 const router = express.Router()
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -46,17 +56,70 @@ function makeComplaintNumber() {
   return `AMU-${date}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`
 }
 
+function uploadToCloudinary(file) {
+  return new Promise((resolve, reject) => {
+    const resourceType = file.mimetype.startsWith('image/') ? 'image'
+      : file.mimetype.startsWith('video/') || file.mimetype.startsWith('audio/') ? 'video' : 'raw'
+    const stream = cloudinary.uploader.upload_stream({
+      folder: 'amu-complaints',
+      resource_type: resourceType,
+      public_id: `${crypto.randomUUID()}-${pathSafeName(file.originalname)}`,
+    }, (error, result) => error ? reject(error) : resolve({
+      publicId: result.public_id,
+      url: result.secure_url,
+      resourceType: result.resource_type,
+    }))
+    stream.end(file.buffer)
+  })
+}
+
+function deleteFromCloudinary(attachments) {
+  return Promise.allSettled(attachments.map(({ publicId, resourceType }) =>
+    cloudinary.uploader.destroy(publicId, { resource_type: resourceType }),
+  ))
+}
+
+router.get('/track/:complaintNumber', async (req, res, next) => {
+  try {
+    const complaintNumber = text(req.params.complaintNumber)
+    if (!complaintNumber) {
+      res.status(400).json({ error: 'Complaint number is required.' })
+      return
+    }
+
+    const complaint = await Complaint.findOne({ complaintNumber }).lean()
+    if (!complaint) {
+      res.status(404).json({ error: 'Complaint not found.' })
+      return
+    }
+
+    res.json({
+      complaint: {
+        complaintNumber: complaint.complaintNumber,
+        status: complaint.status,
+        adminRemarks: complaint.adminRemarks,
+        createdAt: complaint.createdAt,
+        updatedAt: complaint.updatedAt,
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.post('/', upload.array('attachments', 5), async (req, res, next) => {
   const files = req.files || []
   const validationError = validateComplaint(req.body, files)
   if (validationError) {
-    await removeUploadedFiles(files)
     res.status(400).json({ error: validationError })
     return
   }
 
+  const uploadedFiles = []
+  let complaint
   try {
-    const complaint = await Complaint.create({
+    for (const file of files) uploadedFiles.push(await uploadToCloudinary(file))
+    complaint = await Complaint.create({
       complaintNumber: makeComplaintNumber(),
       name: text(req.body.name),
       studentId: text(req.body.studentId),
@@ -72,22 +135,39 @@ router.post('/', upload.array('attachments', 5), async (req, res, next) => {
       incidentDate: req.body.incidentDate || null,
       description: text(req.body.description),
       resolution: text(req.body.resolution),
-      attachments: files.map((file) => ({
-        storageKey: file.filename,
+      attachments: files.map((file, index) => ({
+        ...uploadedFiles[index],
         originalName: pathSafeName(file.originalname),
         mimeType: file.mimetype,
         size: file.size,
       })),
     })
 
-    res.status(201).json({
-      message: 'Complaint received.',
-      complaintNumber: complaint.complaintNumber,
-    })
   } catch (error) {
-    await removeUploadedFiles(files)
+    await deleteFromCloudinary(uploadedFiles)
     next(error)
+    return
   }
+
+  let notificationSent = false
+  try {
+    const emailFiles = files.map((file, index) => ({
+      ...uploadedFiles[index],
+      buffer: file.buffer,
+      originalName: pathSafeName(file.originalname),
+      size: file.size,
+    }))
+    await sendComplaintNotification(complaint, emailFiles)
+    notificationSent = true
+  } catch (error) {
+    console.error(`Could not email admin about complaint ${complaint.complaintNumber}:`, error.message)
+  }
+
+  res.status(201).json({
+    message: 'Complaint received.',
+    complaintNumber: complaint.complaintNumber,
+    notificationSent,
+  })
 })
 
 function pathSafeName(filename) {

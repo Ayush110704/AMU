@@ -12,7 +12,9 @@ export const complaintCategories = [
 ]
 
 const attachmentSchema = new mongoose.Schema({
-  storageKey: { type: String, required: true },
+  publicId: { type: String, required: true },
+  url: { type: String, required: true },
+  resourceType: { type: String, required: true },
   originalName: { type: String, required: true },
   mimeType: { type: String, required: true },
   size: { type: Number, required: true },
@@ -35,7 +37,8 @@ const complaintSchema = new mongoose.Schema({
   description: { type: String, trim: true, maxlength: 5000, default: '' },
   resolution: { type: String, trim: true, maxlength: 3000, default: '' },
   attachments: { type: [attachmentSchema], default: [] },
-  status: { type: String, enum: ['received', 'in_review', 'resolved'], default: 'received' },
+  status: { type: String, enum: ['Pending', 'In Progress', 'Resolved'], default: 'Pending' },
+  adminRemarks: { type: String, trim: true, maxlength: 2000, default: '' },
 }, { timestamps: true, versionKey: false })
 
 export default mongoose.model('Complaint', complaintSchema)

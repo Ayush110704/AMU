@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; // <-- IMPORTED
+import { setAdminToken } from './authSession';
 
 export default function AdminAuth() {
   const navigate = useNavigate(); // <-- INITIALIZED
@@ -23,21 +24,39 @@ export default function AdminAuth() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  async function getErrorMessage(response, fallbackMessage) {
+    const payload = await response.json().catch(() => ({}))
+    return payload.error || fallbackMessage
+  }
  
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Simulate API Login
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/admin/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Login failed.'))
+      }
+
+      const data = await response.json()
+      setAdminToken(data.token)
+      navigate('/admin/dashboard')
+    } catch (loginError) {
+      setError(loginError.message || 'Could not sign in.')
+    } finally {
       setIsLoading(false);
-      // If login is successful, redirect to dashboard
-      navigate('/admin/dashboard'); 
-    }, 1000);
+    }
   };
 
-  const handleRequestOTP = (e) => {
+  const handleRequestOTP = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -46,17 +65,36 @@ export default function AdminAuth() {
       return;
     }
 
-    const SECRET_KEY = "AMU-Admin-2026"; 
-    if (adminCode !== SECRET_KEY) {
-      setError('Invalid Secret Admin Code. You are not authorized.');
-      return;
-    }
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/admin/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          adminCode,
+        }),
+      })
 
-    setIsLoading(true);
-    setTimeout(() => {
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Registration failed.'))
+      }
+
+      setSuccessMsg('Registration successful! Please login.')
+      setIsLogin(true)
+      setRegStep('details')
+      setPassword('')
+      setConfirmPassword('')
+      setAdminCode('')
+      setOtp('')
+      setTimeout(() => setSuccessMsg(''), 3000)
+    } catch (registrationError) {
+      setError(registrationError.message || 'Could not register admin account.')
+    } finally {
       setIsLoading(false);
-      setRegStep('otp');
-    }, 1000);
+    }
   };
 
   const handleVerifyOTP = (e) => {
